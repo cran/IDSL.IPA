@@ -7,7 +7,7 @@ XIC
 XIC
 }
 \usage{
-XIC(spectraList.xic, scan_number_start, mz_target, mass_accuracy_xic)
+XIC(spectraList.xic, scan_number_start = 1, mz_target, mass_accuracy_xic)
 }
 \arguments{
   \item{spectraList.xic}{

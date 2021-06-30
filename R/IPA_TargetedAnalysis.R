@@ -50,17 +50,11 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate = 0, rtCandidate = 0, 
       registerDoSNOW(cl)
       cc_table <- foreach(i = 1:length(file_name_hrms), .combine ='rbind', .verbose = FALSE) %dopar% {
         ## To convert mzXML datafiles
-        FN <- paste0(input_path_hrms, "/", file_name_hrms[i])
-        xfile <- openMSfile(FN)
-        peakTable <- header(xfile) # this gets table of details for each spectra
-        spectraList <- spectra(xfile) # this gets the spectra values
-        x_MS <- which(peakTable$peaksCount != 0 & peakTable$msLevel == 1) # peaks from soft ionization channel ## some files may not have data in the column re-calibration period.
-        spectraList <- spectraList[x_MS]
-        peakTable <- peakTable[x_MS, ]
-        RetentionTime <- as.data.frame(peakTable[, 7], drop = FALSE)/60  # Retention times in minute
-        RetentionTime <- as.matrix(RetentionTime)
+        MassSpec_file <- paste0(input_path_hrms, "/", file_name_hrms[i])
+        outputer <- MS_deconvoluter(MassSpec_file)
+        spectraList <- outputer[[1]]
+        RetentionTime <- outputer[[2]]
         nRT <- length(RetentionTime)
-        rm(xfile)
         ##
         chrome <- do.call(rbind, lapply(1:length(mzCandidate), function(j) {
           ScanNumberApex <- which.min(abs(RetentionTime - rtCandidate[j]))
@@ -154,17 +148,11 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate = 0, rtCandidate = 0, 
     if (osType == "Linux") {
       cc_table <- do.call(rbind, lapply(1:length(file_name_hrms), function(i) {
         ## To convert mzXML datafiles
-        FN <- paste0(input_path_hrms, "/", file_name_hrms[i])
-        xfile <- openMSfile(FN)
-        peakTable <- header(xfile) # this gets table of details for each spectra
-        spectraList <- spectra(xfile) # this gets the spectra values
-        x_MS <- which(peakTable$peaksCount != 0 & peakTable$msLevel == 1) # peaks from soft ionization channel ## some files may not have data in the column re-calibration period.
-        spectraList <- spectraList[x_MS]
-        peakTable <- peakTable[x_MS, ]
-        RetentionTime <- as.data.frame(peakTable[, 7], drop = FALSE)/60  # Retention times in minute
-        RetentionTime <- as.matrix(RetentionTime)
+        MassSpec_file <- paste0(input_path_hrms, "/", file_name_hrms[i])
+        outputer <- MS_deconvoluter(MassSpec_file)
+        spectraList <- outputer[[1]]
+        RetentionTime <- outputer[[2]]
         nRT <- length(RetentionTime)
-        rm(xfile)
         ##
         chrome <- do.call(rbind, mclapply(1:length(mzCandidate), function(j) {
           ScanNumberApex <- which.min(abs(RetentionTime - rtCandidate[j]))
@@ -249,9 +237,10 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate = 0, rtCandidate = 0, 
             peak_property <- rep(0, 24)
           }
           cbind(file_name_hrms[i], round(mzCandidate[j], 5), round(rtCandidate[j], 2), data.frame(matrix(peak_property, nrow = 1)))
-        }, mc.cores = number_processing_cores))#
+        }, mc.cores = number_processing_cores))
         chrome
       }))
+      closeAllConnections()
     }
     ###
     print("Completed the targeted analysis!")

@@ -5,7 +5,7 @@ EIC_plotter <- function (spec_scan_xic, peak_property_xic, smoothing_window, pea
   ScanNumberStart <- spec_scan_xic[1, 3]
   ScanNumberEnd <- spec_scan_xic[nrow(spec_scan_xic), 3]
   filling_window <- floor(0.05*(ScanNumberEnd - ScanNumberStart)) + 1 # Supposedly minimum space between two peaks
-  chrom_builder_temp <- XIC(spectraList[ScanNumberStart:ScanNumberEnd], ScanNumberStart, mz_target, mass_accuracy_xic)
+  chrom_builder_temp <- XIC(spectraList[ScanNumberStart:ScanNumberEnd], scan_number_start = ScanNumberStart, mz_target, mass_accuracy_xic)
   Top_ScN <- (ScanNumberStart - filling_window - 1) : (ScanNumberStart - 1)
   x_Top <- which(Top_ScN > 0)
   L_Top <- length(x_Top)

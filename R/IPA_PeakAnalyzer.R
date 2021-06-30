@@ -46,16 +46,10 @@ IPA_PeakAnalyzer <- function (PARAM) {
   ##
   call_carbon_IPA_parallel <- function(i) {
     ## To convert mzML/mzXML datafiles
-    FN <- paste0(input_path_hrms, "/", file_name_hrms[i])
-    xfile <- openMSfile(FN)
-    peakTable <- header(xfile) # this gets table of details for each spectra
-    spectraList <- spectra(xfile) # this gets the spectra values
-    x_MS <- which(peakTable$peaksCount > 0 & peakTable$msLevel == 1) # peaks from soft ionization channel ## some files may not have data in the column re-calibration period.
-    spectraList <- spectraList[x_MS]
-    peakTable <- peakTable[x_MS, ]
-    RetentionTime <- as.data.frame(peakTable[, 7], drop = FALSE)/60  # Retention times in minute
-    RetentionTime <- as.matrix(RetentionTime)
-    rm(xfile)
+    MassSpec_file <- paste0(input_path_hrms, "/", file_name_hrms[i])
+    outputer <- MS_deconvoluter(MassSpec_file)
+    spectraList <- outputer[[1]]
+    RetentionTime <- outputer[[2]]
     ## carbon_isotopes_explorer
     spec_scan <- carbon_isotopes_explorer(spectraList, int_threshold, mass_accuracy_13c, max_R13C)
     ## m/z clustering
@@ -139,9 +133,10 @@ IPA_PeakAnalyzer <- function (PARAM) {
     stopCluster(cl)
   }
   if (osType == "Linux") {
-    Null_variable <- do.call(cbind, mclapply(1:length(file_name_hrms), function(k) {
+    Null_variable <- do.call(rbind, mclapply(1:length(file_name_hrms), function(k) {
       call_carbon_IPA_parallel(k)
     }, mc.cores = number_processing_cores))
+    closeAllConnections()
   }
   print("Completed HRMS peak detection!")
   return()

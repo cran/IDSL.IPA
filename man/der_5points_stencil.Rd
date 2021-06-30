@@ -31,6 +31,6 @@ y.
 data(peak_spline)
 rt <- peak_spline[, 1]
 int <- peak_spline[, 2]
-n <- 2 #  first derivative
+n <- 2 # second order derivative
 der_5points_stencil(rt, int, n)
 }

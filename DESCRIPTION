@@ -1,7 +1,7 @@
 Package: IDSL.IPA
 Type: Package
-Title: Intelligent Peak Analyzer for LC-MS Data
-Version: 1.1
+Title: Intrinsic Peak Analysis for LC-MS Data
+Version: 1.2
 Authors@R: c(
     person(family = "Fakouri-Baygi", given = "Sadjad", email = "sadjad.fakouri-baygi@mssm.edu",
     role = c("cre","aut"), comment = c(ORCID = "0000-0002-6864-6911")),
@@ -25,6 +25,6 @@ Encoding: UTF-8
 LazyData: true
 Archs: i386, x64
 NeedsCompilation: no
-Packaged: 2021-05-26 18:49:12 UTC; sfbaygi
+Packaged: 2021-06-29 17:48:10 UTC; sfbaygi
 Repository: CRAN
-Date/Publication: 2021-05-28 07:10:10 UTC
+Date/Publication: 2021-06-30 06:10:02 UTC

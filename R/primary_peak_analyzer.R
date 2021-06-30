@@ -29,7 +29,7 @@ primary_peak_analyzer <- function (spec_scan, index_xic, scan_tol, spectraList, 
                               mass_accuracy_xic, spectraList, RetentionTime, n_spline)
     }))
   } else {
-    peaklist <- do.call(rbind,lapply(1:length(index_xic), function(i) {
+    peaklist <- do.call(rbind, lapply(1:length(index_xic), function(i) {
       x <- index_xic[[i]]
       A <- matrix(spec_scan[x, ], ncol = 5)
       mz_interim <- A[1, 1]

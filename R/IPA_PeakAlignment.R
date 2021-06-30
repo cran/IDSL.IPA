@@ -74,6 +74,7 @@ IPA_PeakAlignment <- function (PARAM) {
         peaklist <- loadRData(paste0(input_path_peaklist, "/", file_name_peaklist_samples[i]))
         sample_rt_corrector(reference_mz_rt_peaks, peaklist, mz_error, rt_correction_method, reference_peak_tol, polynomial_degree)
       }, mc.cores = number_processing_cores)
+      closeAllConnections()
     }
     print("Completed RT correction!")
     ##

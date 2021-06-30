@@ -1,4 +1,4 @@
-XIC <- function(spectraList.xic, scan_number_start, mz_target, mass_accuracy_xic) {
+XIC <- function(spectraList.xic, scan_number_start = 1, mz_target, mass_accuracy_xic) {
   chrom_ScN_Int <- do.call(rbind, lapply(1:length(spectraList.xic), function(t) {
     PEAKS <- spectraList.xic[[t]]
     PEAKSt <- c(t, 0, 0)

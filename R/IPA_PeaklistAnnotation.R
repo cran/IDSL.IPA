@@ -135,15 +135,10 @@ IPA_PeaklistAnnotation <- function(PARAM) {
               RT_uncorrected_undeteced <- matrix(undeteced_RT, ncol = 1)
             }
             ##
-            FN <- paste0(input_path_hrms, "/", file_name_hrms[i])
-            xfile <- mzR::openMSfile(FN)
-            peakTable <- mzR::header(xfile) # this gets table of details for each spectra
-            spectraList <- mzR::spectra(xfile) # this gets the spectra values
-            x_MS <- which(peakTable$peaksCount != 0 & peakTable$msLevel == 1) # peaks from soft ionization channel ## some files may not have data in the column re-calibration period.
-            spectraList <- spectraList[x_MS]
-            peakTable <- peakTable[x_MS, ]
-            RetentionTime <- as.data.frame(peakTable[, 7], drop = FALSE)/60  # Retention times in minute
-            RetentionTime <- as.matrix(RetentionTime)
+            MassSpec_file <- paste0(input_path_hrms, "/", file_name_hrms[i])
+            outputer <- MS_deconvoluter(MassSpec_file)
+            spectraList <- outputer[[1]]
+            RetentionTime <- outputer[[2]]
             nRT <- length(RetentionTime)
             ##
             chromatography_undetected <- do.call(rbind, lapply(1:length(x_0), function(j) {
@@ -216,6 +211,7 @@ IPA_PeaklistAnnotation <- function(PARAM) {
           }
           chromatography_undetected
         }, mc.cores = number_processing_cores)
+        closeAllConnections()
       }
       if(osType == "Windows") {
         cl <- makeCluster(number_processing_cores)
@@ -240,15 +236,10 @@ IPA_PeaklistAnnotation <- function(PARAM) {
               RT_uncorrected_undeteced <- matrix(undeteced_RT, ncol = 1)
             }
             ##
-            FN <- paste0(input_path_hrms, "/", file_name_hrms[i])
-            xfile <- mzR::openMSfile(FN)
-            peakTable <- mzR::header(xfile) # this gets table of details for each spectra
-            spectraList <- mzR::spectra(xfile) # this gets the spectra values
-            x_MS <- which(peakTable$peaksCount != 0 & peakTable$msLevel == 1) # peaks from soft ionization channel ## some files may not have data in the column re-calibration period.
-            spectraList <- spectraList[x_MS]
-            peakTable <- peakTable[x_MS, ]
-            RetentionTime <- as.data.frame(peakTable[, 7], drop = FALSE)/60  # Retention times in minute
-            RetentionTime <- as.matrix(RetentionTime)
+            MassSpec_file <- paste0(input_path_hrms, "/", file_name_hrms[i])
+            outputer <- MS_deconvoluter(MassSpec_file)
+            spectraList <- outputer[[1]]
+            RetentionTime <- outputer[[2]]
             nRT <- length(RetentionTime)
             ##
             chromatography_undetected <- do.call(rbind, lapply(1:length(x_0), function(j) {

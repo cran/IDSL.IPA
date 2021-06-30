@@ -54,15 +54,10 @@ IPA_GapFiller <- function(PARAM) {
         new.df <- data.frame(uncoRT = undeteced_RT) # predict uncorrected RTs
         RT_uncorrected_undeteced <- matrix(predict(rtmodel, new.df), ncol = 1)
         ##
-        FN <- paste0(input_path_hrms, "/", file_name_hrms[i])
-        xfile <- mzR::openMSfile(FN)
-        peakTable <- mzR::header(xfile) # this gets table of details for each spectra
-        spectraList <- mzR::spectra(xfile) # this gets the spectra values
-        x_MS <- which(peakTable$peaksCount != 0 & peakTable$msLevel == 1) # peaks from soft ionization channel ## some files may not have data in the column re-calibration period.
-        spectraList <- spectraList[x_MS]
-        peakTable <- peakTable[x_MS, ]
-        RetentionTime <- as.data.frame(peakTable[, 7], drop = FALSE)/60  # Retention times in minute
-        RetentionTime <- as.matrix(RetentionTime)
+        MassSpec_file <- paste0(input_path_hrms, "/", file_name_hrms[i])
+        outputer <- MS_deconvoluter(MassSpec_file)
+        spectraList <- outputer[[1]]
+        RetentionTime <- outputer[[2]]
         nRT <- length(RetentionTime)
         ##
         chromatography_undetected <- do.call(rbind, mclapply(1:L_x_0, function(j) {
@@ -75,7 +70,7 @@ IPA_GapFiller <- function(PARAM) {
           ScanNumberStart <- max(c((sn_apex - scan_tol), 1))
           ScanNumberEnd <- min(c(nRT, (sn_apex + scan_tol)))
           spectraList.xic <- spectraList[ScanNumberStart:ScanNumberEnd]
-          chrom_builder <- XIC(spectraList.xic, ScanNumberStart, mzCandidate, mass_error)
+          chrom_builder <- XIC(spectraList.xic, scan_number_start = ScanNumberStart, mzCandidate, mass_error)
           length_chrom <- dim(chrom_builder)[1]
           x_apex <- which(chrom_builder[, 1] == sn_apex)
           rt_loc_min <- islocalminimum(chrom_builder[, 3])
@@ -135,6 +130,7 @@ IPA_GapFiller <- function(PARAM) {
       }
       chromatography_undetected
     })
+    closeAllConnections()
     cat("\n")
   }
   ##
@@ -142,8 +138,7 @@ IPA_GapFiller <- function(PARAM) {
     cl <- makeCluster(number_processing_cores)
     registerDoSNOW(cl)
     chromatography_undetected_list <- foreach(i=1:L_HRMS, .verbose = FALSE) %dopar% {
-      library(IDSL.IPA)
-      chromatography_undetected <-c()
+      chromatography_undetected <- c()
       x_0 <- which(peak_Xcol[, (i + 2)] == 0)
       L_x_0 <- length(x_0)
       if (L_x_0 > 0) {
@@ -157,15 +152,10 @@ IPA_GapFiller <- function(PARAM) {
         new.df <- data.frame(uncoRT = undeteced_RT) # predict uncorrected RTs
         RT_uncorrected_undeteced <- matrix(predict(rtmodel, new.df), ncol = 1)
         ##
-        FN <- paste0(input_path_hrms, "/", file_name_hrms[i])
-        xfile <- mzR::openMSfile(FN)
-        peakTable <- mzR::header(xfile) # this gets table of details for each spectra
-        spectraList <- mzR::spectra(xfile) # this gets the spectra values
-        x_MS <- which(peakTable$peaksCount != 0 & peakTable$msLevel == 1) # peaks from soft ionization channel ## some files may not have data in the column re-calibration period.
-        spectraList <- spectraList[x_MS]
-        peakTable <- peakTable[x_MS, ]
-        RetentionTime <- as.data.frame(peakTable[, 7], drop = FALSE)/60  # Retention times in minute
-        RetentionTime <- as.matrix(RetentionTime)
+        MassSpec_file <- paste0(input_path_hrms, "/", file_name_hrms[i])
+        outputer <- MS_deconvoluter(MassSpec_file)
+        spectraList <- outputer[[1]]
+        RetentionTime <- outputer[[2]]
         nRT <- length(RetentionTime)
         chromatography_undetected <- do.call(rbind, lapply(1:L_x_0, function(j) {
           chromatography_undetected_row <- c()
@@ -177,7 +167,7 @@ IPA_GapFiller <- function(PARAM) {
           ScanNumberStart <- max(c((sn_apex - scan_tol), 1))
           ScanNumberEnd <- min(c(nRT, (sn_apex + scan_tol)))
           spectraList.xic <- spectraList[ScanNumberStart:ScanNumberEnd]
-          chrom_builder <- XIC(spectraList.xic, ScanNumberStart, mzCandidate, mass_error)
+          chrom_builder <- XIC(spectraList.xic, scan_number_start = ScanNumberStart, mzCandidate, mass_error)
           length_chrom <- dim(chrom_builder)[1]
           x_apex <- which(chrom_builder[,1] == sn_apex)
           rt_loc_min <- islocalminimum(chrom_builder[, 3])

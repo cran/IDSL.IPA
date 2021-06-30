@@ -11,7 +11,7 @@ chromatography_analysis <- function (spec_scan_xic, smoothing_window, peak_resol
   ScanNumberStart <- spec_scan_xic[1, 3]
   ScanNumberEnd <- spec_scan_xic[nrow(spec_scan_xic), 3]
   filling_window <- floor(0.05*(ScanNumberEnd - ScanNumberStart)) + 1 # Supposedly minimum space between two peaks
-  chrom_builder_temp <- XIC(spectraList[ScanNumberStart:ScanNumberEnd], ScanNumberStart, mz_target, mass_accuracy_xic)
+  chrom_builder_temp <- XIC(spectraList[ScanNumberStart:ScanNumberEnd], scan_number_start=ScanNumberStart, mz_target, mass_accuracy_xic)
   Top_ScN <- (ScanNumberStart - filling_window - 1) : (ScanNumberStart - 1)
   x_Top <- which(Top_ScN > 0)
   L_Top <- length(x_Top)
@@ -190,7 +190,7 @@ chromatography_analysis <- function (spec_scan_xic, smoothing_window, peak_resol
                           cc[16] <- usp_tailing_factor(RT_spline, Int_spline)
                           ## Skewness using a derivative method
                           cc[17] <- derivative_skewness(RT_spline, (Int_spline - BL_approx))
-                          ## Symmetry using pseudomoments
+                          ## Symmetry using pseudo-moments
                           output_CS <- pseudomoments_symmetry(RT_spline, (Int_spline - BL_approx))
                           cc[18] <- output_CS[1] # peak symmetry
                           cc[19] <- output_CS[2] # skewness
@@ -200,6 +200,7 @@ chromatography_analysis <- function (spec_scan_xic, smoothing_window, peak_resol
                           cc[22] <- snr_xcms(Int_spline)
                           ## Signal to noise ratio (SNR) using the root mean square method
                           cc[23] <- snr_rms(Int_spline, BL_approx, 0.80)
+                          ## Peak sharpness
                           cc[24] <- peak_sharpness(Int_spline)
                         }
                       }
