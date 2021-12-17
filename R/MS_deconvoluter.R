@@ -7,6 +7,7 @@ MS_deconvoluter <- function(MassSpec_file, MS_level = 1) {
   peakTable <- peakTable[x_MS, ]
   RetentionTime <- as.data.frame(peakTable[, 7], drop = FALSE)/60  # Retention times in minute
   RetentionTime <- as.matrix(RetentionTime)
-  outputer <- list(spectraList, RetentionTime)
+  MS_polarity <- ifelse(peakTable$polarity[1] == 1, "+", "-")
+  outputer <- list(spectraList, RetentionTime, MS_polarity)
   return(outputer)
 }

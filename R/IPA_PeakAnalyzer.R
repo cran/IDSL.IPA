@@ -11,7 +11,9 @@ IPA_PeakAnalyzer <- function (PARAM) {
   }
   output_path <- PARAM[which(PARAM[, 1] == 'PARAM0010'), 2]
   output_path_peaklist <- paste0(output_path, "/peaklists")
-  dir.create(output_path_peaklist)
+  if (!dir.exists(output_path_peaklist)) {
+    dir.create(output_path_peaklist)
+  }
   opendir(output_path_peaklist)
   ## To select monoisotopic peaks that have 13C isotopologues in the same scan
   int_threshold <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0011'), 2])     # Intensity threshold in each scan
@@ -117,8 +119,8 @@ IPA_PeakAnalyzer <- function (PARAM) {
                          "Skewness_DerivativeMethod", "Symmetry PseudoMoments","Skewness PseudoMoments",
                          "Gaussianity", "S/N baseline", "S/N xcms method", "S/N RMS", "Sharpness")
     peaklist <- as.matrix(peaklist)
-    save(peaklist, file=paste0(output_path_peaklist, "/peaklist_",file_name_hrms[i],".Rdata"))
-    write.csv(peaklist, file=paste0(output_path_peaklist, "/peaklist_",file_name_hrms[i],".csv"))
+    save(peaklist, file = paste0(output_path_peaklist, "/peaklist_",file_name_hrms[i],".Rdata"))
+    write.csv(peaklist, file = paste0(output_path_peaklist, "/peaklist_",file_name_hrms[i],".csv"))
     return()
   }
   print("Initiated HRMS peak detection!")

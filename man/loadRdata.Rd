@@ -1,17 +1,17 @@
-\name{loadRData}
-\alias{loadRData}
+\name{loadRdata}
+\alias{loadRdata}
 \title{
-loadRData
+loadRdata
 }
 \description{
 This function loads .Rdata files into a variable.
 }
 \usage{
-loadRData(fileName)
+loadRdata(fileName)
 }
 \arguments{
   \item{fileName}{
-is an *.Rdata file.
+is an .Rdata file.
 }
 }
 \value{

@@ -11,7 +11,7 @@ xlsxAnalyzer_EIC <- function (spreadsheet) {
   } else if (length(spreadsheet) == 1) {
     if (typeof(spreadsheet) == "character") {
       if (file.exists(spreadsheet)){
-        spreadsheet_IPA <- readxl::read_xlsx(spreadsheet)
+        spreadsheet_IPA <- readxl::read_xlsx(spreadsheet, sheet = 'IPA_targeted')
         PARAM <- cbind(spreadsheet_IPA[, 2], spreadsheet_IPA[, 4])
         checkpoint_parameter <- 1
       } else {
@@ -25,197 +25,207 @@ xlsxAnalyzer_EIC <- function (spreadsheet) {
   }
   if (checkpoint_parameter == 1) {
     ############################################################################
-    x0005 <- PARAM[which(PARAM[, 1] == 'PARAM0005'), 2]
-    if (length(x0005) == 0) {
-      print("ERROR!!! Problem with PARAM0005! This parameter should be YES to plot EICs")
+    x0006 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
+    if (is.na(x0006)) {
+      print("ERROR!!! Problem with PARAM0006!")
       checkpoint_parameter <- 0
-      x0005 <- 0
     } else {
-      if (tolower(x0005) == "no") {
-        print("ERROR!!! Problem with PARAM0005! This parameter should be YES to plot EICs")
+      if (x0006 >= 1) {
+        if ((x0006 %% 1) != 0) {
+          print("ERROR!!! Problem with PARAM0006! This parameter should be a positive integer!")
+          checkpoint_parameter <- 0
+        }
+      } else {
+        print("ERROR!!! Problem with PARAM0006! This parameter should be at least 1 !")
         checkpoint_parameter <- 0
       }
     }
     ##
-    if (tolower(x0005) == "yes") {
-      x0006 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
-      if (is.na(x0006)) {
-        print("ERROR!!! Problem with PARAM0006!")
+    x0007 <- which(PARAM[, 1] == 'PARAM0007')
+    if (length(x0007) == 0) {
+      print("ERROR!!! Problem with PARAM0007!")
+      checkpoint_parameter <- 0
+    } else {
+      address_hrms <- PARAM[x0007, 2]
+      address_hrms <- gsub("\\", "/", address_hrms, fixed=TRUE)
+      PARAM[x0007, 2] <- address_hrms
+      if (!dir.exists(address_hrms)) {
+        print("ERROR!!! Problem with PARAM0007! Please make sure the full path is provided!")
         checkpoint_parameter <- 0
-      } else {
-        if (x0006 >= 1) {
-          if ((x0006 %% 1) != 0) {
-            print("ERROR!!! Problem with PARAM0006! This parameter should be a positive integer!")
-            checkpoint_parameter <- 0
-          }
-        } else {
-          print("ERROR!!! Problem with PARAM0006! This parameter should be at least 1 !")
-          checkpoint_parameter <- 0
-        }
       }
       ##
-      x0007 <- which(PARAM[, 1] == 'PARAM0007')
-      if (length(x0007) == 0) {
-        print("ERROR!!! Problem with PARAM0007!")
+      x0008 <- which(PARAM[, 1] == 'PARAM0008')
+      if (is.na(PARAM[x0008, 2])) {
+        print("ERROR!!! Problem with PARAM0008!")
         checkpoint_parameter <- 0
       } else {
-        address_hrms <- PARAM[x0007, 2]
-        address_hrms <- gsub("\\", "/", address_hrms, fixed=TRUE)
-        PARAM[x0007, 2] <- address_hrms
-        if (!dir.exists(address_hrms)) {
-          print("ERROR!!! Problem with PARAM0007! Please make sure the full path is provided!")
-          checkpoint_parameter <- 0
+        if (tolower(PARAM[x0008, 2]) != "all") {
+          samples_string <- PARAM[x0008, 2]
+          name <- strsplit(samples_string, ";")[[1]] # files used as reference m/z-RT
+          ID <- sapply(1:length(name), function(i) {
+            ID_name <- paste0(address_hrms, "/", name[i])
+            as.numeric(file.exists(ID_name))
+          })
+          x_ID <- which(ID == 0)
+          if (length(x_ID) > 0) {
+            print("ERROR!!! Problem with PARAM0008! not detected the following file(s) (case sensitive even for file extensions):")
+            for (i in 1:length(x_ID)) {
+              print(name[x_ID[i]])
+            }
+            checkpoint_parameter <- 0
+          }
         }
         ##
-        x0008 <- which(PARAM[, 1] == 'PARAM0008')
-        if (is.na(PARAM[x0008, 2])) {
-          print("ERROR!!! Problem with PARAM0008!")
-          checkpoint_parameter <- 0
-        } else {
-          if (tolower(PARAM[x0008, 2]) != "all") {
-            samples_string <- PARAM[x0008, 2]
-            name <- strsplit(samples_string, ";")[[1]] # files used as reference m/z-RT
-            ID <- sapply(1:length(name), function(i) {
-              ID_name <- paste0(address_hrms, "/", name[i])
-              as.numeric(file.exists(ID_name))
-            })
-            x_ID <- which(ID == 0)
-            if (length(x_ID) > 0) {
-              print("ERROR!!! Problem with PARAM0008! not detected the following file(s) (case sensitive even for file extensions):")
-              for (i in 1:length(x_ID)) {
-                print(name[x_ID[i]])
-              }
-              checkpoint_parameter <- 0
-            }
-          }
-          ##
-          if (tolower(PARAM[x0008, 2]) == "all") {
-            x0009 <- PARAM[which(PARAM[, 1] == 'PARAM0009'), 2]
-            if (is.na(x0009)) {
-              print("ERROR!!! Problem with PARAM0009!")
-              checkpoint_parameter <- 0
+        if (tolower(PARAM[x0008, 2]) == "all") {
+          x0009 <- PARAM[which(PARAM[, 1] == 'PARAM0009'), 2]
+          if (is.na(x0009)) {
+            print("ERROR!!! Problem with PARAM0009!")
+            checkpoint_parameter <- 0
+          } else {
+            if (tolower(x0009) == "mzml" | tolower(x0009) == "mzxml") {
+              cat("")
             } else {
-              if (tolower(x0009) == "mzml" | tolower(x0009) == "mzxml") {
-                cat("")
-              } else {
-                print("ERROR!!! Problem with PARAM0009! HRMS data are incompatible!")
-                checkpoint_parameter <- 0
-              }
+              print("ERROR!!! Problem with PARAM0009! HRMS data are incompatible!")
+              checkpoint_parameter <- 0
             }
-          }
-        }
-      }
-      ##
-      x0010 <- which(PARAM[, 1] == 'PARAM0010')
-      if (length(x0010) == 0) {
-        print("ERROR!!! Problem with PARAM0010!")
-        checkpoint_parameter <- 0
-      } else {
-        output_path <- gsub("\\", "/", PARAM[x0010, 2], fixed=TRUE)
-        PARAM[x0010, 2] <- output_path
-        if (!dir.exists(output_path)) {
-          tryCatch(dir.create(output_path))
-          if (!dir.exists(output_path)) {
-            print("ERROR!!! Problem with PARAM0010! R can only create one folder!")
-            checkpoint_parameter <- 0
-          }
-        }
-      }
-      ##
-      x0012 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0012'), 2])
-      if (is.na(x0012)) {
-        print("ERROR!!! Problem with PARAM0012! This parameter should be a positive number!")
-        checkpoint_parameter <- 0
-      } else {
-        if (x0012 <= 0) {
-          print("ERROR!!! Problem with PARAM0012! This parameter should be a positive number!")
-          checkpoint_parameter <- 0
-        }
-      }
-      #################### Chromatographic peak detection ######################
-      x0013 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0013'), 2])
-      if (is.na(x0013)) {
-        print("ERROR!!! Problem with PARAM0013!")
-        checkpoint_parameter <- 0
-      } else {
-        if (x0013 <= 0) {
-          print("ERROR!!! Problem with PARAM0013! This value should be a positive number!")
-          checkpoint_parameter <- 0
-        }
-      }
-      ##
-      x0015 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0015'), 2])
-      if (is.na(x0015)) {
-        print("ERROR!!! Problem with PARAM0015! This parameter should be a positive number!")
-        checkpoint_parameter <- 0
-      } else {
-        if (x0015 > 0) {
-          cat("\n")
-        } else {
-          print("ERROR!!! Problem with PARAM0015! This parameter should be a positive number!")
-          checkpoint_parameter <- 0
-        }
-      }
-      ##
-      # x0016 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0016'), 2])
-      # if (is.na(x0016)) {
-      #   print("ERROR!!! Problem with PARAM0016! This parameter should be a positive integer!")
-      #   checkpoint_parameter <- 0
-      # } else {
-      #   if (x0016 <= 0) {
-      #     print("ERROR!!! Problem with PARAM0016! This parameter should be a positive integer!")
-      #     checkpoint_parameter <- 0
-      #   }
-      # }
-      ##
-      x0017 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0017'), 2])
-      if (is.na(x0017)) {
-        print("ERROR!!! Problem with PARAM0017! This value should be a positive number between 0-0.05 !")
-        checkpoint_parameter <- 0
-      } else {
-        if (x0017 < 0 | x0017 > 0.1) {
-          print("ERROR!!! Problem with PARAM0017! This value should be a positive number between 0-0.05 !")
-          checkpoint_parameter <- 0
-        }
-      }
-      ##
-      x0020 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0020'), 2])
-      if (is.na(x0020)) {
-        print("ERROR!!! Problem with PARAM0020! This parameter should be a positive integer!")
-        checkpoint_parameter <- 0
-      } else {
-        if (x0020 < 0) {
-          print("ERROR!!! Problem with PARAM0020! This parameter should be a positive integer!")
-          checkpoint_parameter <- 0
-        } else {
-          if ((x0020 %% 1) != 0) {
-            print("ERROR!!! Problem with PARAM0020! This parameter should be a positive integer!")
-            checkpoint_parameter <- 0
-          }
-        }
-      }
-      ##
-      x0028 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0028'), 2])
-      if (is.na(x0028)) {
-        print("ERROR!!! Problem with PARAM0028! This parameter should be a positive integer greater than or equal to 11 !")
-        checkpoint_parameter <- 0
-      } else {
-        if (x0028 < 0) {
-          print("ERROR!!! Problem with PARAM0028! This parameter should be a positive integer greater than or equal to 11 !")
-          checkpoint_parameter <- 0
-        } else if (x0028 <= 11 && x0028 >= 1) {
-          print("ERROR!!! Problem with PARAM0028! This parameter should be a positive integer greater than or equal to 11 !")
-          checkpoint_parameter <- 0
-        } else {
-          if ((x0028 %% 1) != 0) {
-            print("ERROR!!! Problem with PARAM0028! This parameter should be a positive integer greater than or equal to 11 !")
-            checkpoint_parameter <- 0
           }
         }
       }
     }
-    ############################################################################
+    ##
+    x0010 <- which(PARAM[, 1] == 'PARAM0010')
+    if (length(x0010) == 0) {
+      print("ERROR!!! Problem with PARAM0010!")
+      checkpoint_parameter <- 0
+    } else {
+      output_path <- gsub("\\", "/", PARAM[x0010, 2], fixed=TRUE)
+      PARAM[x0010, 2] <- output_path
+      if (!dir.exists(output_path)) {
+        tryCatch(dir.create(output_path))
+        if (!dir.exists(output_path)) {
+          print("ERROR!!! Problem with PARAM0010! R can only create one folder!")
+          checkpoint_parameter <- 0
+        }
+      }
+    }
+    ##
+    x0012 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0012'), 2])
+    if (is.na(x0012)) {
+      print("ERROR!!! Problem with PARAM0012! This parameter should be a positive number!")
+      checkpoint_parameter <- 0
+    } else {
+      if (x0012 <= 0) {
+        print("ERROR!!! Problem with PARAM0012! This parameter should be a positive number!")
+        checkpoint_parameter <- 0
+      }
+    }
+    #################### Chromatographic peak detection ######################
+    x0013 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0013'), 2])
+    if (is.na(x0013)) {
+      print("ERROR!!! Problem with PARAM0013!")
+      checkpoint_parameter <- 0
+    } else {
+      if (x0013 <= 0) {
+        print("ERROR!!! Problem with PARAM0013! This value should be a positive number!")
+        checkpoint_parameter <- 0
+      }
+    }
+    ##
+    x0015 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0015'), 2])
+    if (is.na(x0015)) {
+      print("ERROR!!! Problem with PARAM0015! This parameter should be a positive number!")
+      checkpoint_parameter <- 0
+    } else {
+      if (x0015 > 0) {
+        cat("\n")
+      } else {
+        print("ERROR!!! Problem with PARAM0015! This parameter should be a positive number!")
+        checkpoint_parameter <- 0
+      }
+    }
+    ##
+    # x0016 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0016'), 2])
+    # if (is.na(x0016)) {
+    #   print("ERROR!!! Problem with PARAM0016! This parameter should be a positive integer!")
+    #   checkpoint_parameter <- 0
+    # } else {
+    #   if (x0016 <= 0) {
+    #     print("ERROR!!! Problem with PARAM0016! This parameter should be a positive integer!")
+    #     checkpoint_parameter <- 0
+    #   }
+    # }
+    ##
+    x0017 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0017'), 2])
+    if (is.na(x0017)) {
+      print("ERROR!!! Problem with PARAM0017! This value should be a positive number between 0-0.05 !")
+      checkpoint_parameter <- 0
+    } else {
+      if (x0017 < 0 | x0017 > 0.1) {
+        print("ERROR!!! Problem with PARAM0017! This value should be a positive number between 0-0.05 !")
+        checkpoint_parameter <- 0
+      }
+    }
+    ##
+    x0020 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0020'), 2])
+    if (is.na(x0020)) {
+      print("ERROR!!! Problem with PARAM0020! This parameter should be a positive integer!")
+      checkpoint_parameter <- 0
+    } else {
+      if (x0020 <= 0) {
+        print("ERROR!!! Problem with PARAM0020! This parameter should be a positive integer!")
+        checkpoint_parameter <- 0
+      } else {
+        if ((x0020 %% 1) != 0) {
+          print("ERROR!!! Problem with PARAM0020! This parameter should be a positive integer!")
+          checkpoint_parameter <- 0
+        }
+      }
+    }
+    ##
+    x0028 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0028'), 2])
+    if (is.na(x0028)) {
+      print("ERROR!!! Problem with PARAM0028! This parameter should be a positive integer greater than or equal to 11 !")
+      checkpoint_parameter <- 0
+    } else {
+      if (x0028 < 0) {
+        print("ERROR!!! Problem with PARAM0028! This parameter should be a positive integer greater than or equal to 11 !")
+        checkpoint_parameter <- 0
+      } else if (x0028 <= 11 && x0028 >= 1) {
+        print("ERROR!!! Problem with PARAM0028! This parameter should be a positive integer greater than or equal to 11 !")
+        checkpoint_parameter <- 0
+      } else {
+        if ((x0028 %% 1) != 0) {
+          print("ERROR!!! Problem with PARAM0028! This parameter should be a positive integer greater than or equal to 11 !")
+          checkpoint_parameter <- 0
+        }
+      }
+    }
+    ##
+    mzCandidate <- eval(parse(text = paste0("c(", PARAM[which(PARAM[, 1] == 'PARAM_MZ'), 2], ")")))
+    rtCandidate <- eval(parse(text = paste0("c(", PARAM[which(PARAM[, 1] == 'PARAM_RT'), 2], ")")))
+    if (length(mzCandidate) !=  length(rtCandidate)) {
+      checkpoint_parameter <- 0
+      print("Error!!! Problems with PARAM_MZ and PARAM_RT ! mz and RT vectors do not have the same length!")
+    }
+    ##
+    ipa_eic_tar <- tolower(PARAM[which(PARAM[, 1] == 'PARAM_EIC'), 2])
+    if (ipa_eic_tar == "y" | ipa_eic_tar == "yes" | ipa_eic_tar == "n" | ipa_eic_tar == "no") {
+      cat("\n")
+    } else {
+      checkpoint_parameter <- 0
+      print("Error!!! Problems with PARAM_EIC !")
+    }
+    ##
+    ipa_tab_tar <- tolower(PARAM[which(PARAM[, 1] == 'PARAM_CCT'), 2])
+    if (ipa_tab_tar == "y" | ipa_tab_tar == "yes" | ipa_tab_tar == "n" | ipa_tab_tar == "no") {
+      cat("\n")
+    } else {
+      checkpoint_parameter <- 0
+      print("Error!!! Problems with PARAM_EIC !")
+    }
+    ##
   }
+  ##############################################################################
   if (checkpoint_parameter == 0) {
     print("Please visit   https://ipa.idsl.me    for instructions!")
     PARAM <- c()

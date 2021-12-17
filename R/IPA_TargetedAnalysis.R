@@ -1,4 +1,4 @@
-IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate = 0, rtCandidate = 0, exportEIC = TRUE, exportTable = FALSE) {
+IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEIC = TRUE, exportTable = FALSE) {
   cc_table <- c()
   if (length(mzCandidate) !=  length(rtCandidate)) {
     stop("Error!!! mz and rt vectors do not have the same length!")
@@ -113,7 +113,7 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate = 0, rtCandidate = 0, 
             peak_property[R3] <- round(peak_property[R3], 3)
             peak_property[R5] <- round(peak_property[R5], 5)
             ##
-            peak_property_xic <- c(peak_property[3], peak_property[8], peak_property[10], as.numeric(mass_accuracy_xic), peak_property[1:2], peak_property[4:7], peak_property[9], peak_property[11:24])
+            peak_property_xic <- c(peak_property[3], peak_property[8], peak_property[10], mass_accuracy_xic, peak_property[1:2], peak_property[4:7], peak_property[9], peak_property[11:24])
             peak_property_xic <- data.frame(peak_property_xic)
             colnames(peak_property_xic) <- ""
             rownames(peak_property_xic) <- c("Retention time (min)", "m/z (monoisotopic)", "m/z (13C)", "Mass tolerance (Da)", "Scan (start)",
@@ -125,7 +125,7 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate = 0, rtCandidate = 0, 
             if (exportEIC == TRUE) {
               EIC_figure <- EIC_plotter(chromatogram_segment, peak_property_xic, smoothing_window, peak_resolving_power,
                                         mass_accuracy_xic, spectraList, RetentionTime, mz_target = mzCandidate[j], rt_target = rtCandidate[j], file_name = file_name_hrms[i], legend_EIC)
-              ggsave(filename=paste0("/IPA_EIC_", file_name_hrms[i], "_", j, "-", round(mzCandidate[j], 5), "-",round(rtCandidate[j], 2), ".png"),
+              ggsave(filename=paste0("/IPA_EIC_", file_name_hrms[i], "_", j, "_", round(mzCandidate[j], 5), "_",round(rtCandidate[j], 2), ".png"),
                      plot = EIC_figure,
                      device = "png",
                      path = output_path_eic,
@@ -211,7 +211,7 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate = 0, rtCandidate = 0, 
             peak_property[R3] <- round(peak_property[R3], 3)
             peak_property[R5] <- round(peak_property[R5], 5)
             ##
-            peak_property_xic <- c(peak_property[3], peak_property[8], peak_property[10], as.numeric(mass_accuracy_xic), peak_property[1:2], peak_property[4:7], peak_property[9], peak_property[11:24])
+            peak_property_xic <- c(peak_property[3], peak_property[8], peak_property[10], mass_accuracy_xic, peak_property[1:2], peak_property[4:7], peak_property[9], peak_property[11:24])
             peak_property_xic <- data.frame(peak_property_xic)
             colnames(peak_property_xic) <- ""
             rownames(peak_property_xic) <- c("Retention time (min)", "m/z (monoisotopic)", "m/z (13C)", "Mass tolerance (Da)", "Scan (start)",
@@ -223,7 +223,7 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate = 0, rtCandidate = 0, 
             if (exportEIC == TRUE) {
               EIC_figure <- EIC_plotter(chromatogram_segment, peak_property_xic, smoothing_window, peak_resolving_power,
                                         mass_accuracy_xic, spectraList, RetentionTime, mz_target = mzCandidate[j], rt_target = rtCandidate[j], file_name = file_name_hrms[i], legend_EIC)
-              ggsave(filename=paste0("/IPA_EIC_", file_name_hrms[i], "_", j, "-", round(mzCandidate[j], 5), "-",round(rtCandidate[j], 2), ".png"),
+              ggsave(filename=paste0("/IPA_EIC_", file_name_hrms[i], "_", j, "_", round(mzCandidate[j], 5), "_",round(rtCandidate[j], 2), ".png"),
                      plot = EIC_figure,
                      device = "png",
                      path = output_path_eic,
@@ -256,7 +256,8 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate = 0, rtCandidate = 0, 
                            "Skewness_DerivativeMethod", "Symmetry PseudoMoments","Skewness PseudoMoments",
                            "Gaussianity", "S/N baseline", "S/N xcms method", "S/N RMS", "Sharpness")
       rownames(cc_table) <- c()
-      return(cc_table)
+      save(cc_table, file = paste0(output_path, "/exportTable.Rdata"))
+      write.csv(cc_table, file = paste0(output_path, "/exportTable.csv"))
     }
   }
 }

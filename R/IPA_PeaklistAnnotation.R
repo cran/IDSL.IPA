@@ -31,18 +31,18 @@ IPA_PeaklistAnnotation <- function(PARAM) {
     file_names_peaklist_hrms1 <- gsub(".Rdata", "", file_names_peaklist)
     file_names_peaklist_hrms2 <- gsub("peaklist_", "", file_names_peaklist_hrms1)
     file_names_peaklist_hrms <- file_name_hrms%in%file_names_peaklist_hrms2
-    if (length(file_names_peaklist_hrms) != L_PL) {
+    if (length(which(file_names_peaklist_hrms == TRUE)) != L_PL) {
       stop("Error!!! peaklist files are not available for all selected HRMS files!")
     }
     ##
     annotated_peak_indices <- matrix(rep(0, L_nc*L_PL), nrow = L_nc)
-    progressBARboundaries <- txtProgressBar(min = 1, max = L_PL, initial = 1)
+    progressBARboundaries <- txtProgressBar(min = 1, max = L_PL, initial = 1, style = 3)
     if (x0045 == TRUE) {
-      corrected_RT_peaklists <- loadRData(paste0(output_path, "/peak_alignment/corrected_RT_peaklists.Rdata"))
+      corrected_RT_peaklists <- loadRdata(paste0(output_path, "/peak_alignment/corrected_RT_peaklists.Rdata"))
       ##
       for (i in 1:L_PL) {
         setTxtProgressBar(progressBARboundaries, i)
-        peaklist <- loadRData(paste0(input_path_peaklist, "/", file_names_peaklist[i]))
+        peaklist <- loadRdata(paste0(input_path_peaklist, "/", file_names_peaklist[i]))
         mz_i <- matrix(peaklist[, 8], ncol = 1)
         RT_i <- corrected_RT_peaklists[[i]]
         for (j in 1:L_nc) {
@@ -60,7 +60,7 @@ IPA_PeaklistAnnotation <- function(PARAM) {
     } else {
       for (i in 1:L_PL) {
         setTxtProgressBar(progressBARboundaries, i)
-        peaklist <- loadRData(paste0(input_path_peaklist, "/", file_names_peaklist[i]))
+        peaklist <- loadRdata(paste0(input_path_peaklist, "/", file_names_peaklist[i]))
         mz_i <- matrix(peaklist[, 8], ncol = 1)
         RT_i <- matrix(peaklist[, 3], ncol = 1)
         for (j in 1:L_nc) {
@@ -76,7 +76,7 @@ IPA_PeaklistAnnotation <- function(PARAM) {
         }
       }
     }
-    cat("\n")
+    close(progressBARboundaries)
     annotated_peak_indices <- cbind(mz_compounds, rt_compounds , annotated_peak_indices)
     file_names_hrms <- gsub(".Rdata", "", (gsub("peaklist_", "", file_names_peaklist)))
     colnames(annotated_peak_indices) <- c("m/z", "RT", file_names_hrms)
@@ -125,7 +125,7 @@ IPA_PeaklistAnnotation <- function(PARAM) {
             undeteced_RT <- annotated_peak_indices[x_0, 2]
             if (x0045 == TRUE) {
               ## To back calculate the RT ##
-              uncorrected_RTi <- matrix(loadRData(paste0(input_path_peaklist, "/", file_names_peaklist[i]))[, 3], ncol = 1)
+              uncorrected_RTi <- matrix(loadRdata(paste0(input_path_peaklist, "/", file_names_peaklist[i]))[, 3], ncol = 1)
               corrected_RTi <- corrected_RT_peaklists[[i]]
               idf <- data.frame(uncoRT = uncorrected_RTi, coRT = corrected_RTi)
               rtmodel <- lm(coRT ~ poly(uncoRT, 3), idf)
@@ -217,7 +217,6 @@ IPA_PeaklistAnnotation <- function(PARAM) {
         cl <- makeCluster(number_processing_cores)
         registerDoSNOW(cl)
         chromatography_undetected_list <- foreach(i=1:L_HRMS, .verbose = FALSE) %dopar% {
-          library(IDSL.IPA)
           ##
           chromatography_undetected <-c()
           x_0 <- which(annotated_peak_indices[, (i + 2)] == 0)
@@ -226,7 +225,7 @@ IPA_PeaklistAnnotation <- function(PARAM) {
             undeteced_RT <- annotated_peak_indices[x_0, 2]
             if (x0045 == TRUE) {
               ## To back calculate the RT ##
-              uncorrected_RTi <- matrix(loadRData(paste0(input_path_peaklist, "/", file_names_peaklist[i]))[, 3], ncol = 1)
+              uncorrected_RTi <- matrix(loadRdata(paste0(input_path_peaklist, "/", file_names_peaklist[i]))[, 3], ncol = 1)
               corrected_RTi <- corrected_RT_peaklists[[i]]
               idf <- data.frame(uncoRT = uncorrected_RTi, coRT = corrected_RTi)
               rtmodel <- lm(coRT ~ poly(uncoRT, 3), idf)
@@ -318,7 +317,7 @@ IPA_PeaklistAnnotation <- function(PARAM) {
       annotated_peak_height_gapfilled <- annotated_peak_height
       annotated_peak_area_gapfilled <- annotated_peak_area
       annotated_peak_R13C_gapfilled <- annotated_peak_R13C
-      progressBARboundaries <- txtProgressBar(min = 1, max = L_HRMS, initial = 1)
+      progressBARboundaries <- txtProgressBar(min = 1, max = L_HRMS, initial = 1, style = 3)
       for (i in 1:length(chromatography_undetected_list)) {
         setTxtProgressBar(progressBARboundaries, i)
         iSample <- chromatography_undetected_list[[i]]
@@ -333,7 +332,7 @@ IPA_PeaklistAnnotation <- function(PARAM) {
           }
         }
       }
-      cat("\n")
+      close(progressBARboundaries)
       print("Initiated saving gap-filled sample-centric peak annotation!")
       write.csv(annotated_peak_height_gapfilled, file = paste0(Output_Xcol, "/annotated_peak_height_gapfilled.csv"))
       write.csv(annotated_peak_area_gapfilled, file = paste0(Output_Xcol, "/annotated_peak_area_gapfilled.csv"))

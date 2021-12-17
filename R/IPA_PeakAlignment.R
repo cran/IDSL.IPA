@@ -18,7 +18,7 @@ IPA_PeakAlignment <- function (PARAM) {
     file_name_hrms <- strsplit(samples_string, ";")[[1]] # files used as reference m/z-RT
   }
   ##
-  file_names_peaklist_hrms1 <- gsub(".Rdata", "", file_names_peaklist)
+  file_names_peaklist_hrms1 <- gsub(".Rdata", "", file_names_peaklist[, 1])
   file_names_peaklist_hrms2 <- gsub("peaklist_", "", file_names_peaklist_hrms1)
   file_names_peaklist_hrms <- file_name_hrms%in%file_names_peaklist_hrms2
   if (length(file_names_peaklist_hrms) != L_PL) {
@@ -29,6 +29,11 @@ IPA_PeakAlignment <- function (PARAM) {
   mz_error <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0035'), 2])
   rt_tol <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0036'), 2])
   n_quantile <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0037'), 2])
+  ##
+  OutputPath_peak_alignment <- paste0(output_path, "/peak_alignment")
+  if (!dir.exists(OutputPath_peak_alignment)) {
+    dir.create(OutputPath_peak_alignment)
+  }
   ##
   if (tolower(RT_correction_needed) == "yes") {
     reference_samples_string <- PARAM[which(PARAM[, 1] == 'PARAM0030'), 2]
@@ -41,16 +46,25 @@ IPA_PeakAlignment <- function (PARAM) {
     Ref_ID <- Ref_ID[order(Ref_ID)]
     ## To find common peaks in the reference samples
     file_names_peaklist_ref <- file_names_peaklist[Ref_ID, 1]
-    print("Initiated detecting reference peaks for RT correction")
+    print("Initiated detecting reference peaks for RT correction!")
     RT_peaklists_ref <- lapply(1:length(Ref_ID), function(i) {
-      matrix(loadRData(paste(input_path_peaklist, "/", file_names_peaklist_ref[i], sep = ""))[, 3], ncol = 1)
+      matrix(loadRdata(paste0(input_path_peaklist, "/", file_names_peaklist_ref[i]))[, 3], ncol = 1)
     })
     min_frequency_ref_peaks <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0031'), 2])
     reference_mz_rt_peaks <- reference_peaks_detector(input_path_peaklist, file_names_peaklist_ref, min_frequency_ref_peaks,
                                                       RT_peaklists_ref, mz_error, rt_tol, n_quantile, number_processing_cores)
-    print("Completed detecting reference peaks for RT correction")
+    print(paste0("Detected " , dim(reference_mz_rt_peaks)[1], " reference peaks for RT correction!"))
+    #
+    png(paste0(OutputPath_peak_alignment, "/Ref_peaks_distribution.png"))
+    Ref_peaks_distribution <- reference_mz_rt_peaks[, 2]
+    hist_rt_reference_peaks <- hist(Ref_peaks_distribution, breaks = round(max(unlist(RT_peaklists_ref))*1), xlab = "Retention time (min)")
+    dev.off()
+    L_x_regions_rt0 <- length(which(hist_rt_reference_peaks[["counts"]] == 0))
+    if (L_x_regions_rt0 > 0) {
+      print("WARNING!!! Reference peaks were not detected for the entire range of the retention times! Please see the 'Ref_peaks_distribution.png' in the 'peak_alignment' folder!")
+    }
     ##
-    print("Initiated RT correction")
+    print("Initiated RT correction!")
     ##
     rt_correction_method <- PARAM[which(PARAM[, 1] == 'PARAM0032'), 2]
     reference_peak_tol <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0033'), 2])
@@ -64,14 +78,14 @@ IPA_PeakAlignment <- function (PARAM) {
       cl <- makeCluster(number_processing_cores)
       registerDoSNOW(cl)
       Correted_RTs_peaklist <- foreach(i = 1:length(Sample_ID), .verbose = FALSE) %dopar% {
-        peaklist <- loadRData(paste0(input_path_peaklist, "/", file_name_peaklist_samples[i]))
+        peaklist <- loadRdata(paste0(input_path_peaklist, "/", file_name_peaklist_samples[i]))
         sample_rt_corrector(reference_mz_rt_peaks, peaklist, mz_error, rt_correction_method, reference_peak_tol, polynomial_degree)
       }
       stopCluster(cl)
     }
     if (osType == "Linux") {
       Correted_RTs_peaklist <- mclapply(1:length(Sample_ID), function(i) {
-        peaklist <- loadRData(paste0(input_path_peaklist, "/", file_name_peaklist_samples[i]))
+        peaklist <- loadRdata(paste0(input_path_peaklist, "/", file_name_peaklist_samples[i]))
         sample_rt_corrector(reference_mz_rt_peaks, peaklist, mz_error, rt_correction_method, reference_peak_tol, polynomial_degree)
       }, mc.cores = number_processing_cores)
       closeAllConnections()
@@ -89,16 +103,14 @@ IPA_PeakAlignment <- function (PARAM) {
     })
   } else {
     corrected_RT_peaklists <- lapply(1:max(as.numeric(file_names_peaklist[, 2])), function(i) {
-      loadRData(paste0(input_path_peaklist, "/", file_names_peaklist[i]))[, 3]
+      loadRdata(paste0(input_path_peaklist, "/", file_names_peaklist[i]))[, 3]
     })
   }
   ##
-  OutputPath_peak_alignment <- paste0(output_path, "/peak_alignment")
-  dir.create(OutputPath_peak_alignment)
   save(corrected_RT_peaklists, file =paste0(OutputPath_peak_alignment, "/corrected_RT_peaklists.Rdata"))
   ##
   if (tolower(PARAM[which(PARAM[, 1] == 'PARAM0002'), 2]) == "yes") {
-    print("Initiated peak alignment among the entire samples using peak index numbers in the peaklists")
+    print("Initiated peak alignment among the entire samples using peak index numbers in the peaklists!")
     peak_Xcol <- peak_alignment(input_path_peaklist, file_names_peaklist[, 1], corrected_RT_peaklists, mz_error, rt_tol, n_quantile, number_processing_cores)
     #
     file_names_hrms <- gsub(".Rdata", "", (gsub("peaklist_", "", file_names_peaklist[, 1])))
@@ -121,5 +133,4 @@ IPA_PeakAlignment <- function (PARAM) {
     write.csv(peak_R13C, file =paste0(OutputPath_peak_alignment, "/peak_R13C.csv"))
     print("Completed peak alignment!!!")
   }
-  return()
 }

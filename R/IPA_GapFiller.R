@@ -1,6 +1,5 @@
 IPA_GapFiller <- function(PARAM) {
-  print("Initiated gap-filling")
-  ## Processing OS
+  print("Initiated gap-filling!")
   number_processing_cores <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
   ##
   input_path_hrms <- PARAM[which(PARAM[, 1] == 'PARAM0007'), 2]
@@ -9,7 +8,7 @@ IPA_GapFiller <- function(PARAM) {
     file_name_hrms <- file_name_hrms[grep(paste0(".", tolower(PARAM[which(PARAM[, 1] == 'PARAM0009'), 2]), "$"), file_name_hrms, ignore.case = TRUE)]
   } else {
     samples_string <- PARAM[which(PARAM[, 1] == 'PARAM0008'), 2]
-    file_name_hrms <- strsplit(samples_string, ";")[[1]] # files used as reference m/z-RT
+    file_name_hrms <- strsplit(samples_string, ";")[[1]]
   }
   L_HRMS <- length(file_name_hrms)
   ## To perform chromatography analysis
@@ -23,12 +22,12 @@ IPA_GapFiller <- function(PARAM) {
   file_names_peaklist_hrms1 <- gsub(".Rdata", "", file_names_peaklist)
   file_names_peaklist_hrms2 <- gsub("peaklist_", "", file_names_peaklist_hrms1)
   file_names_peaklist_hrms <- file_name_hrms%in%file_names_peaklist_hrms2
-  if (length(file_names_peaklist_hrms) != L_PL) {
+  if (length(which(file_names_peaklist_hrms == TRUE)) != L_PL) {
     stop("Error!!! peaklist files are not available for all selected HRMS files!")
   }
   ##
-  peak_Xcol <- loadRData(paste0(output_path, "/peak_alignment/peak_Xcol.Rdata"))
-  corrected_RT_peaklists <- loadRData(paste0(output_path, "/peak_alignment/corrected_RT_peaklists.Rdata"))
+  peak_Xcol <- loadRdata(paste0(output_path, "/peak_alignment/peak_Xcol.Rdata"))
+  corrected_RT_peaklists <- loadRdata(paste0(output_path, "/peak_alignment/corrected_RT_peaklists.Rdata"))
   mass_error <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0038'), 2])   # Mass accuracy to cluster m/z in consecutive scans
   mass_error_13c <- 1.5*mass_error
   delta_rt <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0039'), 2])
@@ -36,7 +35,7 @@ IPA_GapFiller <- function(PARAM) {
   ##
   osType <- Sys.info()[['sysname']]
   if(osType == "Linux") {
-    progressBARboundaries <- txtProgressBar(min = 1, max = L_HRMS, initial = 1)
+    progressBARboundaries <- txtProgressBar(min = 1, max = L_HRMS, initial = 1, style = 3)
     chromatography_undetected_list <- lapply(1:L_HRMS, function(i) {
       setTxtProgressBar(progressBARboundaries, i)
       ##
@@ -47,7 +46,7 @@ IPA_GapFiller <- function(PARAM) {
         mz_Xcol <- peak_Xcol[x_0, 1]
         ## To back calculate the RT ##
         undeteced_RT <- peak_Xcol[x_0, 2]
-        uncorrected_RTi <- matrix(loadRData(paste0(input_path_peaklist, "/", file_names_peaklist[i]))[, 3], ncol = 1)
+        uncorrected_RTi <- matrix(loadRdata(paste0(input_path_peaklist, "/", file_names_peaklist[i]))[, 3], ncol = 1)
         corrected_RTi <- corrected_RT_peaklists[[i]]
         idf <- data.frame(uncoRT = uncorrected_RTi, coRT = corrected_RTi)
         rtmodel <- lm(coRT ~ poly(uncoRT, 3), idf)
@@ -131,7 +130,7 @@ IPA_GapFiller <- function(PARAM) {
       chromatography_undetected
     })
     closeAllConnections()
-    cat("\n")
+    close(progressBARboundaries)
   }
   ##
   if(osType == "Windows") {
@@ -145,7 +144,7 @@ IPA_GapFiller <- function(PARAM) {
         mz_Xcol <- peak_Xcol[x_0, 1]
         ## To back calculate the RT ##
         undeteced_RT <- peak_Xcol[x_0, 2]
-        uncorrected_RTi <- matrix(loadRData(paste0(input_path_peaklist, "/", file_names_peaklist[i]))[, 3], ncol = 1)
+        uncorrected_RTi <- matrix(loadRdata(paste0(input_path_peaklist, "/", file_names_peaklist[i]))[, 3], ncol = 1)
         corrected_RTi <- corrected_RT_peaklists[[i]]
         idf <- data.frame(uncoRT = uncorrected_RTi, coRT = corrected_RTi)
         rtmodel <- lm(coRT ~ poly(uncoRT, 3), idf)
@@ -230,15 +229,15 @@ IPA_GapFiller <- function(PARAM) {
     stopCluster(cl)
   }
   ##
-  print("Filling gaps of the peak height, peak area, and R13C on the aligned peak tables")
+  print("Filling gaps of the peak height, peak area, and R13C on the aligned peak tables!")
   OutputPath_peak_alignment <- paste0(output_path, "/peak_alignment/")
-  peak_height <- loadRData(paste0(OutputPath_peak_alignment, "peak_height.Rdata"))
-  peak_area <- loadRData(paste0(OutputPath_peak_alignment, "peak_area.Rdata"))
-  peak_R13C <- loadRData(paste0(OutputPath_peak_alignment, "peak_R13C.Rdata"))
+  peak_height <- loadRdata(paste0(OutputPath_peak_alignment, "peak_height.Rdata"))
+  peak_area <- loadRdata(paste0(OutputPath_peak_alignment, "peak_area.Rdata"))
+  peak_R13C <- loadRdata(paste0(OutputPath_peak_alignment, "peak_R13C.Rdata"))
   peak_height_gapfilled <- peak_height
   peak_area_gapfilled <- peak_area
   peak_R13C_gapfilled <- peak_R13C
-  progressBARboundaries <- txtProgressBar(min = 1, max = L_HRMS, initial = 1)
+  progressBARboundaries <- txtProgressBar(min = 1, max = L_HRMS, initial = 1, style = 3)
   for (i in 1:length(chromatography_undetected_list)) {
     setTxtProgressBar(progressBARboundaries, i)
     iSample <- chromatography_undetected_list[[i]]
@@ -253,14 +252,14 @@ IPA_GapFiller <- function(PARAM) {
       }
     }
   }
-  cat("\n")
+  close(progressBARboundaries)
   opendir(OutputPath_peak_alignment)
-  print("Initiated saving aligned gap-filled peak tables")
+  print("Initiated saving aligned gap-filled peak tables!")
   save(peak_height_gapfilled, file = paste0(OutputPath_peak_alignment, "peak_height_gapfilled.Rdata"))
   write.csv(peak_height_gapfilled, file = paste0(OutputPath_peak_alignment, "peak_height_gapfilled.csv"))
   save(peak_area_gapfilled, file = paste0(OutputPath_peak_alignment, "peak_area_gapfilled.Rdata"))
   write.csv(peak_area_gapfilled, file = paste0(OutputPath_peak_alignment, "peak_area_gapfilled.csv"))
   save(peak_R13C_gapfilled, file = paste0(OutputPath_peak_alignment, "peak_R13C_gapfilled.Rdata"))
   write.csv(peak_R13C_gapfilled, file = paste0(OutputPath_peak_alignment, "peak_R13C_gapfilled.csv"))
-  print("Completed gap-filling")
+  print("Completed gap-filling!!!")
 }

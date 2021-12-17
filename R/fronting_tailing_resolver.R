@@ -24,6 +24,7 @@ fronting_tailing_resolver <- function(segment, int, max_space, peak_resolving_po
           l4 <- l2 - l3
           z <- (l5 - l2)/(r5 - r2)*(r3 - r2)
         } else if (l2 == l5) {
+          l3 <- int[R[i, 3]]
           l4 <- l5 - l3
           z <- 1e-5
         }

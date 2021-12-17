@@ -4,7 +4,7 @@
 peak area
 }
 \description{
-This function calculates area under the curve using the trapezoid method.
+This function calculates area under the curve using a trapezoid method.
 }
 \usage{
 peak_area(x, y)

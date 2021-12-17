@@ -11,7 +11,7 @@ MS_deconvoluter(MassSpec_file, MS_level = 1)
 }
 \arguments{
   \item{MassSpec_file}{
-Mass spectromtery file.
+mass spectromtery file.
 }
   \item{MS_level}{
 MS level to extract information.
@@ -23,5 +23,8 @@ MS level to extract information.
 }
   \item{RetentionTime}{
  a vector of retention times for scan numbers.
+}
+  \item{MS_polarity}{
+mass spectromtery ionization mode (+/-)
 }
 }

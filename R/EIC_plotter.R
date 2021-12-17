@@ -96,7 +96,7 @@ EIC_plotter <- function (spec_scan_xic, peak_property_xic, smoothing_window, pea
     x_rtt <- which.min(abs(RetentionTime[Chrom_Builder[, 1]] - rt_target))[1]
     Int_rtt <- max(c(Chrom_Builder[x_rtt, 2], Chrom_Builder[x_rtt, 3]))
     ##
-    EIC_figure <- ggplot(data=dataraw, aes(x=x)) +
+    EIC_figure <- ggplot(data = dataraw, aes(x = x)) +
       geom_segment(data=data12C, aes(x=x, xend=x, y=0, yend=y), color = "#00AFBB", size=1) +
       geom_line (data=datasmooth, aes(y=y), color="#009E73", size=2) +
       geom_line (data=dataraw, aes(y=y), color="steelblue", size=1, linetype="F1") +
@@ -107,10 +107,10 @@ EIC_plotter <- function (spec_scan_xic, peak_property_xic, smoothing_window, pea
       xlab("Retention Time (min)") + ylab("Intensity") +
       scale_y_continuous(limits = c(0, max(Chrom_Builder[, 2])*1.07), expand = c(0, 0)) +
       scale_x_continuous(limits = c(RetentionTime[Chrom_Builder[1, 1]], RetentionTime[Chrom_Builder[SZC, 1]]), expand = c(0, 0)) +
-      geom_text(x=rt_target, y= Int_rtt*1.01, label="*", col="red", cex = 10) +
-      geom_text(x=RetentionTime[Chrom_Builder[floor(SZC*0.1), 1]], y= max(Chrom_Builder[, 2])*1.05, label=file_name, cex = 5) +
+      annotate("text", x = rt_target, y = Int_rtt*1.01, label = "*", color = "red", size = 10) +
+      labs(title = file_name) +
       theme_bw() + theme(legend.position = "top", panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-                         text = element_text(size = 24))
+                         text = element_text(size = 24), plot.title = element_text(size = 14))
     my_table <- tableGrob(peak_property_xic, theme = ttheme_default()) ## create inset table
     EIC_figure <- grid.arrange(EIC_figure, my_table, ncol = 2) ## final result
   } else {
@@ -122,12 +122,12 @@ EIC_plotter <- function (spec_scan_xic, peak_property_xic, smoothing_window, pea
       xlim(RetentionTime[Chrom_Builder[1, 1]], RetentionTime[Chrom_Builder[SZC, 1]]) +
       ylim(0, max(Chrom_Builder[, 2])*1.05) +
       xlab("Retention Time (min)") + ylab("Intensity") +
-      geom_text(x=(RetentionTime[Chrom_Builder[5, 1]]), y= max(Chrom_Builder[, 2])*1.05, label=paste("m/z=",round(mz_target, 5))) +
-      geom_text(x=(RetentionTime[Chrom_Builder[SZC - 5, 1]]), y= max(Chrom_Builder[, 2])*1.02, label=paste("RT=",round(rt_target, 3))) +
-      geom_text(x=rt_target, y= Int_rtt*1.02, label="*", col="red", cex=10) +
-      geom_text(x=RetentionTime[Chrom_Builder[1, 1]], y= max(Chrom_Builder[, 2])*1.02, label=file_name, cex = 5) +
+      annotate("text", x = RetentionTime[Chrom_Builder[5, 1]], y = max(Chrom_Builder[, 2])*1.05, label=paste0("m/z = ", round(mz_target, 5))) +
+      annotate("text", x = RetentionTime[Chrom_Builder[SZC - 5, 1]], y = max(Chrom_Builder[, 2])*1.02, label=paste0("RT = ", round(rt_target, 3))) +
+      annotate("text", x = rt_target, y = Int_rtt*1.01, label = "*", color = "red", size = 10) +
+      labs(title = file_name) +
       theme_bw() + theme(legend.position = "top", panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-                         text = element_text(size = 24,  family="Arial"))
+                         text = element_text(size = 24), plot.title = element_text(size = 14))
   }
   return(EIC_figure)
 }

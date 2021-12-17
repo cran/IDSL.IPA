@@ -1,11 +1,10 @@
 \name{der_5points_stencil}
 \alias{der_5points_stencil}
 \title{
-Numerical differentiation using the five-point stencil method
+Numerical differentiation by five-point stencil method
 }
 \description{
-This module perofrms numerical differentiation using the five-point stencil
-method.
+This module perofrms numerical differentiation using the five-point stencil method.
 }
 \usage{
 der_5points_stencil(x, y, n)
@@ -22,10 +21,7 @@ order of numerical differentiation (n=1-4).
 }
 }
 \value{
-A matrix of 2 columns. The first column represents x and the second column
-represents numerical differentiation values. This matrix has two rows from the
-begining and 2 rows from the end (four rows in total) less than length of x or
-y.
+A matrix of 2 columns. The first column represents x and the second column represents numerical differentiation values. This matrix has four rows (two rows from the beginning and 2 rows from the end) less than length of x or y.
 }
 \examples{
 data(peak_spline)

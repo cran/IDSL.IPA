@@ -165,7 +165,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
   } else if (length(spreadsheet) == 1) {
     if (typeof(spreadsheet) == "character") {
       if (file.exists(spreadsheet)){
-        spreadsheet_IPA <- readxl::read_xlsx(spreadsheet)
+        spreadsheet_IPA <- readxl::read_xlsx(spreadsheet, sheet = 'parameters')
         PARAM <- cbind(spreadsheet_IPA[, 2], spreadsheet_IPA[, 4])
         checkpoint_parameter <- 1
       } else {
@@ -236,11 +236,23 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
     }
     ##
     x0005 <- PARAM[which(PARAM[, 1] == 'PARAM0005'), 2]
-    if (length(x0005) > 0) {
-      if (tolower(x0005) == "yes") {
-        print("WARNING!!! IPA Targeted Analysis was selected in PARAM0005! You may use the targeted analysis only with the 'IPA_TargetedAnalysis' module!")
+    if (length(x0005) == 0) {
+      print("ERROR!!! Problem with PARAM0005!")
+      checkpoint_parameter <- 0
+    } else {
+      if (tolower(x0005) == "yes" | tolower(x0005) == "no") {
+        if (tolower(x0005) == "yes") {
+          PARAM_targeted <- xlsxAnalyzer_EIC(spreadsheet)
+          if (length(PARAM_targeted) == 0) {
+            checkpoint_parameter <- 0
+          }
+        }
+      } else {
+        print("ERROR!!! Problem with PARAM0005!")
+        checkpoint_parameter <- 0
       }
     }
+    # print("WARNING!!! IPA Targeted Analysis was selected in PARAM0005! You may use the targeted analysis only with the 'IPA_TargetedAnalysis' module!")
     ##
     x0006 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
     if (length(x0006) == 0) {
@@ -458,7 +470,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
             print("ERROR!!! Problem with PARAM0020! This parameter should be a positive integer!")
             checkpoint_parameter <- 0
           } else {
-            if (x0020 < 0) {
+            if (x0020 <= 0) {
               print("ERROR!!! Problem with PARAM0020! This parameter should be a positive integer!")
               checkpoint_parameter <- 0
             } else {
@@ -558,11 +570,6 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
       if (is.na(x0029)) {
         print("ERROR!!! Problem with PARAM0029! It should be YES when PARAM0002 is YES")
         checkpoint_parameter <- 0
-      } else {
-        if (tolower(x0029) == "no") {
-          print("ERROR!!! Problem with PARAM0029! It should be YES when PARAM0002 is YES")
-          checkpoint_parameter <- 0
-        }
       }
       checkpoint_parameter <- RT_correction_check(checkpoint_parameter, PARAM)
     }
@@ -618,7 +625,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
         print("Error!!! PARAM0041 is empty. Please also check PARAM0004!")
         checkpoint_parameter <- 0
       } else {
-        address_ref <- gsub("\\", "/", address_ref, fixed=TRUE)
+        address_ref <- gsub("\\", "/", address_ref, fixed = TRUE)
         PARAM[which(PARAM[, 1] == 'PARAM0041'), 2] <- address_ref
         annotation_folder_available <- dir.exists(address_ref)
         if (annotation_folder_available == 0) {

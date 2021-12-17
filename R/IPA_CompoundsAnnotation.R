@@ -29,7 +29,7 @@ IPA_CompoundsAnnotation <- function(PARAM) {
     file_names_peaklist_hrms1 <- gsub(".Rdata", "", file_names_peaklist)
     file_names_peaklist_hrms2 <- gsub("peaklist_", "", file_names_peaklist_hrms1)
     file_names_peaklist_hrms <- file_name_hrms%in%file_names_peaklist_hrms2
-    if (length(file_names_peaklist_hrms) != L_PL) {
+    if (length(which(file_names_peaklist_hrms == TRUE)) != L_PL) {
       stop("Error!!! peaklist files are not available for all selected HRMS files!")
     }
     ##
@@ -44,13 +44,13 @@ IPA_CompoundsAnnotation <- function(PARAM) {
                       "Gaussianity", "S/N", "S/N xcms method", "S/N RMS", "Sharpness")
       MAT
     })
-    progressBARboundaries <- txtProgressBar(min = 1, max =L_PL, initial = 1)
+    progressBARboundaries <- txtProgressBar(min = 1, max =L_PL, initial = 1, style = 3)
     ##
     if (tolower(x0045) == "yes") {
-      corrected_RT_peaklists <- loadRData(paste0(output_path, "/peak_alignment/corrected_RT_peaklists.Rdata"))
+      corrected_RT_peaklists <- loadRdata(paste0(output_path, "/peak_alignment/corrected_RT_peaklists.Rdata"))
       for (i in 1:L_PL) {
         setTxtProgressBar(progressBARboundaries, i)
-        peaklist <- loadRData(paste(input_path_peaklist, "/", file_names_peaklist[i], sep = ""))
+        peaklist <- loadRdata(paste(input_path_peaklist, "/", file_names_peaklist[i], sep = ""))
         S_ID <- gsub("peaklist_", "", file_names_peaklist[i])
         S_ID <- gsub(".Rdata", "", S_ID)
         mz_i <- matrix(peaklist[, 8], ncol = 1)
@@ -71,7 +71,7 @@ IPA_CompoundsAnnotation <- function(PARAM) {
     } else {
       for (i in 1:L_PL) {
         setTxtProgressBar(progressBARboundaries, i)
-        peaklist <- loadRData(paste(input_path_peaklist, "/", file_names_peaklist[i], sep = ""))
+        peaklist <- loadRdata(paste(input_path_peaklist, "/", file_names_peaklist[i], sep = ""))
         S_ID <- gsub("peaklist_", "", file_names_peaklist[i])
         S_ID <- gsub(".Rdata", "", S_ID)
         mz_i <- matrix(peaklist[, 8], ncol = 1)
@@ -90,7 +90,7 @@ IPA_CompoundsAnnotation <- function(PARAM) {
         }
       }
     }
-    cat("\n")
+    close(progressBARboundaries)
     dir.create(Output_CSV)
     for (i in 1:L_nc) {
       A <- annotation_list[[i]]

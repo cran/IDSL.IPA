@@ -5,10 +5,10 @@ peak_Xcol2 <- function(input_path_peaklist, file_names_peaklist, peak_Xcol) {
   peak_area <- peak_height
   peak_R13C <- peak_height
   ##
-  progressBARboundaries <- txtProgressBar(min = 2, max = (L_2 - 2), initial = 2)
+  progressBARboundaries <- txtProgressBar(min = 3, max = (L_2 - 2), initial = 3, style = 3)
   for (i in 3:L_2) {
     setTxtProgressBar(progressBARboundaries, i)
-    peaklist <- loadRData(paste0(input_path_peaklist, "/", file_names_peaklist[i - 2]))
+    peaklist <- loadRdata(paste0(input_path_peaklist, "/", file_names_peaklist[i - 2]))
     x_non0 <- which(peak_Xcol[, i] != 0)
     for (j in x_non0) {
       x_peak <- peak_Xcol[j, i]
@@ -17,7 +17,7 @@ peak_Xcol2 <- function(input_path_peaklist, file_names_peaklist, peak_Xcol) {
       peak_R13C[j, i] <- peaklist[x_peak, 11]
     }
   }
-  cat("\n")
+  close(progressBARboundaries)
   H_A_R13C <- list(peak_height, peak_area, peak_R13C)
   return(H_A_R13C)
 }

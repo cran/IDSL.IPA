@@ -1,4 +1,9 @@
 IPA_Workflow <- function(spreadsheet) {
+  initiation_time <- Sys.time()
+  ##
+  gc()
+  closeAllConnections()
+  ##
   PARAM <- IPA_xlsxAnalyzer(spreadsheet)
   if (length(PARAM) > 0) {
     if (tolower(PARAM[which(PARAM[, 1] == 'PARAM0001'), 2]) == "yes") {
@@ -26,6 +31,36 @@ IPA_Workflow <- function(spreadsheet) {
         IPA_PeaklistAnnotation(PARAM)
       }
     }
-    print("Completed computation successfully!")
+    ##
+    if (tolower(PARAM[which(PARAM[, 1] == 'PARAM0005'), 2]) == "yes") {
+      PARAM_targeted <- xlsxAnalyzer_EIC(spreadsheet)
+      ##
+      mzCandidate <- eval(parse(text = paste0("c(", PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM_MZ'), 2], ")")))
+      rtCandidate <- eval(parse(text = paste0("c(", PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM_RT'), 2], ")")))
+      ##
+      ipa_eic_tar <- tolower(PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM_EIC'), 2])
+      if (ipa_eic_tar == "y" | ipa_eic_tar == "yes") {
+        exportEIC_TorF <- TRUE
+      } else if (ipa_eic_tar == "n" | ipa_eic_tar == "no") {
+        exportEIC_TorF <- FALSE
+      }
+      ##
+      ipa_tab_tar <- tolower(PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM_CCT'), 2])
+      if (ipa_tab_tar == "y" | ipa_tab_tar == "yes") {
+        exportTable_TorF <- TRUE
+      } else if (ipa_tab_tar == "n" | ipa_tab_tar == "no") {
+        exportTable_TorF <- FALSE
+      }
+      ##
+      null_var <- IPA_TargetedAnalysis(spreadsheet, mzCandidate, rtCandidate, exportEIC = exportEIC_TorF, exportTable = exportTable_TorF)
+    }
+    ##
+    required_time <- Sys.time() - initiation_time
+    print(required_time)
+    print("Completed IDSL.IPA computations successfully!")
   }
+  ##
+  gc()
+  closeAllConnections()
+  ##
 }
