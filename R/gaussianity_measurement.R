@@ -10,8 +10,7 @@ gaussianity_measurement <- function (RT, Int, BL, gauge = 0.8) {
     x_g <- which(Int/Int_max >= (1 - gauge))
     Int_g <- Int[x_g]
     G_g <- G[x_g]
-    para.test <- ks.test(Int_g, G_g, alternative = "two.sided")
-    GM <- para.test$p.value
+    GM <- cor(Int_g, G_g, method = "pearson")
   }
   return(GM)
 }

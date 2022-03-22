@@ -53,8 +53,7 @@ IPA_GapFiller <- function(PARAM) {
         new.df <- data.frame(uncoRT = undeteced_RT) # predict uncorrected RTs
         RT_uncorrected_undeteced <- matrix(predict(rtmodel, new.df), ncol = 1)
         ##
-        MassSpec_file <- paste0(input_path_hrms, "/", file_name_hrms[i])
-        outputer <- MS_deconvoluter(MassSpec_file)
+        outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
         spectraList <- outputer[[1]]
         RetentionTime <- outputer[[2]]
         nRT <- length(RetentionTime)
@@ -151,8 +150,7 @@ IPA_GapFiller <- function(PARAM) {
         new.df <- data.frame(uncoRT = undeteced_RT) # predict uncorrected RTs
         RT_uncorrected_undeteced <- matrix(predict(rtmodel, new.df), ncol = 1)
         ##
-        MassSpec_file <- paste0(input_path_hrms, "/", file_name_hrms[i])
-        outputer <- MS_deconvoluter(MassSpec_file)
+        outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
         spectraList <- outputer[[1]]
         RetentionTime <- outputer[[2]]
         nRT <- length(RetentionTime)

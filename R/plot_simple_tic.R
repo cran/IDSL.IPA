@@ -5,8 +5,9 @@ plot_simple_tic <- function(filelist,filelocation,numberOfcores,plotTitle = "Tot
   cl <- makeCluster(numberOfcores)
   registerDoSNOW(cl)
   dflist.tic <- foreach(mzmlfile = filelist) %dopar% {
-    load(paste0(filelocation,gsub(".mzML","_peaktable.RData",mzmlfile)))
-    data.frame(RT=as.numeric(peakTable$retentionTime/60),Intensity=as.numeric(peakTable$totIonCurrent))
+    p2l <- peak2list(filelocation, mzmlfile)
+    peakTable <- p2l[["peakTable"]]
+    data.frame(RT=as.numeric(peakTable$retentionTime),Intensity=as.numeric(peakTable$totIonCurrent))
   }
   stopCluster(cl)
 
@@ -47,5 +48,5 @@ plot_simple_tic <- function(filelist,filelocation,numberOfcores,plotTitle = "Tot
       lines(df$RT, df$Intensity, pch = 19, col = sample(rainbow(500),1), type = "l", lty = 1,lwd=2)
     }
   }
-  print("A simple TIC has been generated.")
+  print("simple TICs have been generated!")
 }

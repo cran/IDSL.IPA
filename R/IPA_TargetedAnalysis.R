@@ -20,13 +20,13 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
       print("Created output directory!")
       dir.create(output_path)
     }
-    output_path_eic <- paste0(output_path, "/EICs")
-    if (!dir.exists(output_path_eic)) {
-      dir.create(output_path_eic)
-    }
-    opendir(output_path_eic)
-    ##
     if (exportEIC == TRUE) {
+      output_path_eic <- paste0(output_path, "/EICs")
+      if (!dir.exists(output_path_eic)) {
+        dir.create(output_path_eic)
+      }
+      opendir(output_path_eic)
+      ##
       img <- png::readPNG(paste0(system.file("extdata", package = "IDSL.IPA"),"/EIC_legend.png"))
       legend_EIC <- grid::rasterGrob(img, interpolate = TRUE)
     }
@@ -50,8 +50,7 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
       registerDoSNOW(cl)
       cc_table <- foreach(i = 1:length(file_name_hrms), .combine ='rbind', .verbose = FALSE) %dopar% {
         ## To convert mzXML datafiles
-        MassSpec_file <- paste0(input_path_hrms, "/", file_name_hrms[i])
-        outputer <- MS_deconvoluter(MassSpec_file)
+        outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
         spectraList <- outputer[[1]]
         RetentionTime <- outputer[[2]]
         nRT <- length(RetentionTime)
@@ -108,35 +107,38 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
                                                    max_R13C_integrated_peak = Inf, max_percentage_missing_scans  = Inf, mz_target = mzCandidate[j],
                                                    rt_target = rtCandidate[j], mass_accuracy_xic, spectraList, RetentionTime, n_spline)
           if (length(peak_property) > 0) {
+            if (length(peak_property) > 24) {
+              x_max <- which.max(peak_property[, 7])
+              peak_property <- peak_property[x_max[1], ]
+            }
             peak_property <- matrix(peak_property, ncol = 1)
             peak_property[R0] <- round(peak_property[R0], 0)
             peak_property[R3] <- round(peak_property[R3], 3)
             peak_property[R5] <- round(peak_property[R5], 5)
-            ##
-            peak_property_xic <- c(peak_property[3], peak_property[8], peak_property[10], mass_accuracy_xic, peak_property[1:2], peak_property[4:7], peak_property[9], peak_property[11:24])
-            peak_property_xic <- data.frame(peak_property_xic)
-            colnames(peak_property_xic) <- ""
-            rownames(peak_property_xic) <- c("Retention time (min)", "m/z (monoisotopic)", "m/z (13C)", "Mass tolerance (Da)", "Scan (start)",
-                                             "Scan (end)", "Peak height", "Peak area", "nIsoPair", "RCS(%)", "Cumulative intensity",
-                                             "R13C (%)", "Peak width @ baseline", "Ratio peak width @ 50%", "Separation trays", "Asymmetry factor @ 10%",
-                                             "USP tailing factor @ 5%", "Skewness derivative method", "Symmetry pseudo-moments", "Skewness pseudo-moments",
-                                             "Gaussianity", "S/N baseline", "S/N xcms method", "S/N RMS", "Sharpness")
-            ##
-            if (exportEIC == TRUE) {
-              EIC_figure <- EIC_plotter(chromatogram_segment, peak_property_xic, smoothing_window, peak_resolving_power,
-                                        mass_accuracy_xic, spectraList, RetentionTime, mz_target = mzCandidate[j], rt_target = rtCandidate[j], file_name = file_name_hrms[i], legend_EIC)
-              ggsave(filename=paste0("/IPA_EIC_", file_name_hrms[i], "_", j, "_", round(mzCandidate[j], 5), "_",round(rtCandidate[j], 2), ".png"),
-                     plot = EIC_figure,
-                     device = "png",
-                     path = output_path_eic,
-                     scale = 1,
-                     width = 16,
-                     height = 8,
-                     units = "in",
-                     dpi = 100)
-            }
           } else {
             peak_property <- rep(0, 24)
+          }
+          ##
+          peak_property_xic <- c(peak_property[3], peak_property[8], peak_property[10], mass_accuracy_xic, peak_property[1:2], peak_property[4:7], peak_property[9], peak_property[11:24])
+          peak_property_xic <- data.frame(peak_property_xic)
+          colnames(peak_property_xic) <- ""
+          rownames(peak_property_xic) <- c("Retention time (min)", "m/z (monoisotopic)", "m/z (13C)", "Mass tolerance (Da)", "Scan (start)",
+                                           "Scan (end)", "Peak height", "Peak area", "nIsoPair", "RCS(%)", "Cumulative intensity",
+                                           "R13C (%)", "Peak width @ baseline", "Ratio peak width @ 50%", "Separation trays", "Asymmetry factor @ 10%",
+                                           "USP tailing factor @ 5%", "Skewness derivative method", "Symmetry pseudo-moments", "Skewness pseudo-moments",
+                                           "Gaussianity", "S/N baseline", "S/N xcms method", "S/N RMS", "Sharpness")
+          if (exportEIC == TRUE) {
+            EIC_figure <- EIC_plotter(chromatogram_segment, peak_property_xic, smoothing_window, peak_resolving_power,
+                                      mass_accuracy_xic, spectraList, RetentionTime, mz_target = mzCandidate[j], rt_target = rtCandidate[j], file_name = file_name_hrms[i], legend_EIC)
+            ggsave(filename=paste0("/IPA_EIC_", file_name_hrms[i], "_", j, "_", round(mzCandidate[j], 5), "_",round(rtCandidate[j], 2), ".png"),
+                   plot = EIC_figure,
+                   device = "png",
+                   path = output_path_eic,
+                   scale = 1,
+                   width = 16,
+                   height = 8,
+                   units = "in",
+                   dpi = 100)
           }
           cbind(file_name_hrms[i], round(mzCandidate[j], 5), round(rtCandidate[j], 2), data.frame(matrix(peak_property, nrow = 1)))
         }))
@@ -148,8 +150,7 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
     if (osType == "Linux") {
       cc_table <- do.call(rbind, lapply(1:length(file_name_hrms), function(i) {
         ## To convert mzXML datafiles
-        MassSpec_file <- paste0(input_path_hrms, "/", file_name_hrms[i])
-        outputer <- MS_deconvoluter(MassSpec_file)
+        outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
         spectraList <- outputer[[1]]
         RetentionTime <- outputer[[2]]
         nRT <- length(RetentionTime)
@@ -165,7 +166,7 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
             t2 <- nRT
           }
           ##
-          chromatogram_segment <- do.call(rbind, lapply(t1:t2, function(t) {
+          chromatogram_segment <- do.call(rbind, mclapply(t1:t2, function(t) {
             Spec_ScN_j <- c()
             Spec <- spectraList[[t]]
             if (length(Spec) > 0) {
@@ -206,35 +207,38 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
                                                    max_R13C_integrated_peak = Inf, max_percentage_missing_scans  = Inf, mz_target = mzCandidate[j],
                                                    rt_target = rtCandidate[j], mass_accuracy_xic, spectraList, RetentionTime, n_spline)
           if (length(peak_property) > 0) {
+            if (length(peak_property) > 24) {
+              x_max <- which.max(peak_property[, 7])
+              peak_property <- peak_property[x_max[1], ]
+            }
             peak_property <- matrix(peak_property, ncol = 1)
             peak_property[R0] <- round(peak_property[R0], 0)
             peak_property[R3] <- round(peak_property[R3], 3)
             peak_property[R5] <- round(peak_property[R5], 5)
-            ##
-            peak_property_xic <- c(peak_property[3], peak_property[8], peak_property[10], mass_accuracy_xic, peak_property[1:2], peak_property[4:7], peak_property[9], peak_property[11:24])
-            peak_property_xic <- data.frame(peak_property_xic)
-            colnames(peak_property_xic) <- ""
-            rownames(peak_property_xic) <- c("Retention time (min)", "m/z (monoisotopic)", "m/z (13C)", "Mass tolerance (Da)", "Scan (start)",
-                                             "Scan (end)", "Peak height", "Peak area", "nIsoPair", "RCS(%)", "Cumulative intensity",
-                                             "R13C (%)", "Peak width @ baseline", "Ratio peak width @ 50%", "Separation trays", "Asymmetry factor @ 10%",
-                                             "USP tailing factor @ 5%", "Skewness derivative method", "Symmetry pseudo-moments", "Skewness pseudo-moments",
-                                             "Gaussianity", "S/N baseline", "S/N xcms method", "S/N RMS", "Sharpness")
-            ##
-            if (exportEIC == TRUE) {
-              EIC_figure <- EIC_plotter(chromatogram_segment, peak_property_xic, smoothing_window, peak_resolving_power,
-                                        mass_accuracy_xic, spectraList, RetentionTime, mz_target = mzCandidate[j], rt_target = rtCandidate[j], file_name = file_name_hrms[i], legend_EIC)
-              ggsave(filename=paste0("/IPA_EIC_", file_name_hrms[i], "_", j, "_", round(mzCandidate[j], 5), "_",round(rtCandidate[j], 2), ".png"),
-                     plot = EIC_figure,
-                     device = "png",
-                     path = output_path_eic,
-                     scale = 1,
-                     width = 16,
-                     height = 8,
-                     units = "in",
-                     dpi = 100)
-            }
           } else {
             peak_property <- rep(0, 24)
+          }
+          ##
+          peak_property_xic <- c(peak_property[3], peak_property[8], peak_property[10], mass_accuracy_xic, peak_property[1:2], peak_property[4:7], peak_property[9], peak_property[11:24])
+          peak_property_xic <- data.frame(peak_property_xic)
+          colnames(peak_property_xic) <- ""
+          rownames(peak_property_xic) <- c("Retention time (min)", "m/z (monoisotopic)", "m/z (13C)", "Mass tolerance (Da)", "Scan (start)",
+                                           "Scan (end)", "Peak height", "Peak area", "nIsoPair", "RCS(%)", "Cumulative intensity",
+                                           "R13C (%)", "Peak width @ baseline", "Ratio peak width @ 50%", "Separation trays", "Asymmetry factor @ 10%",
+                                           "USP tailing factor @ 5%", "Skewness derivative method", "Symmetry pseudo-moments", "Skewness pseudo-moments",
+                                           "Gaussianity", "S/N baseline", "S/N xcms method", "S/N RMS", "Sharpness")
+          if (exportEIC == TRUE) {
+            EIC_figure <- EIC_plotter(chromatogram_segment, peak_property_xic, smoothing_window, peak_resolving_power,
+                                      mass_accuracy_xic, spectraList, RetentionTime, mz_target = mzCandidate[j], rt_target = rtCandidate[j], file_name = file_name_hrms[i], legend_EIC)
+            ggsave(filename=paste0("/IPA_EIC_", file_name_hrms[i], "_", j, "_", round(mzCandidate[j], 5), "_",round(rtCandidate[j], 2), ".png"),
+                   plot = EIC_figure,
+                   device = "png",
+                   path = output_path_eic,
+                   scale = 1,
+                   width = 16,
+                   height = 8,
+                   units = "in",
+                   dpi = 100)
           }
           cbind(file_name_hrms[i], round(mzCandidate[j], 5), round(rtCandidate[j], 2), data.frame(matrix(peak_property, nrow = 1)))
         }, mc.cores = number_processing_cores))
@@ -242,7 +246,7 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
       }))
       closeAllConnections()
     }
-    ###
+    ####
     print("Completed the targeted analysis!")
   }
   if (exportTable == TRUE) {
@@ -256,8 +260,7 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
                            "Skewness_DerivativeMethod", "Symmetry PseudoMoments","Skewness PseudoMoments",
                            "Gaussianity", "S/N baseline", "S/N xcms method", "S/N RMS", "Sharpness")
       rownames(cc_table) <- c()
-      save(cc_table, file = paste0(output_path, "/exportTable.Rdata"))
-      write.csv(cc_table, file = paste0(output_path, "/exportTable.csv"))
     }
   }
+  return(cc_table)
 }

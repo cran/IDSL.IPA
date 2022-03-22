@@ -116,6 +116,9 @@ EIC_plotter <- function (spec_scan_xic, peak_property_xic, smoothing_window, pea
   } else {
     x_rtt <- which.min(abs(RetentionTime[Chrom_Builder[, 1]] - rt_target))
     Int_rtt <- max(c(Chrom_Builder[x_rtt, 2], Chrom_Builder[x_rtt, 3]))
+    if (Int_rtt == 0) {
+      Int_rtt <- max(Chrom_Builder[, 2])*0.01
+    }
     EIC_figure <- ggplot(data=dataraw, aes(x=x)) +
       geom_segment(data=data12C, aes(x=x, xend=x, y=0, yend=y), color = "#00AFBB", size=1) +
       geom_line (data=dataraw, aes(y=y), color="steelblue", size=1, linetype="F1") +
@@ -124,7 +127,7 @@ EIC_plotter <- function (spec_scan_xic, peak_property_xic, smoothing_window, pea
       xlab("Retention Time (min)") + ylab("Intensity") +
       annotate("text", x = RetentionTime[Chrom_Builder[5, 1]], y = max(Chrom_Builder[, 2])*1.05, label=paste0("m/z = ", round(mz_target, 5))) +
       annotate("text", x = RetentionTime[Chrom_Builder[SZC - 5, 1]], y = max(Chrom_Builder[, 2])*1.02, label=paste0("RT = ", round(rt_target, 3))) +
-      annotate("text", x = rt_target, y = Int_rtt*1.01, label = "*", color = "red", size = 10) +
+      annotate("text", x = rt_target, y = Int_rtt*1.05, label = "*", color = "red", size = 10) +
       labs(title = file_name) +
       theme_bw() + theme(legend.position = "top", panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
                          text = element_text(size = 24), plot.title = element_text(size = 14))

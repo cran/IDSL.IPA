@@ -16,19 +16,19 @@ chromatography_analysis <- function (spec_scan_xic, smoothing_window, peak_resol
   x_Top <- which(Top_ScN > 0)
   L_Top <- length(x_Top)
   if (L_Top > 0) {
-    Top_chrom_buider <- cbind(Top_ScN[x_Top], rep(0, L_Top), rep(0, L_Top))
+    Top_chrom_builder <- cbind(Top_ScN[x_Top], rep(0, L_Top), rep(0, L_Top))
   } else {
-    Top_chrom_buider <- c()
+    Top_chrom_builder <- c()
   }
   Bottom_ScN <- (ScanNumberEnd + 1) : (ScanNumberEnd + filling_window + 1)
   x_Bottom <- which(Bottom_ScN <= n_RT)
   L_Bottom <- length(x_Bottom)
   if (L_Bottom > 0) {
-    Bottom_chrom_buider <- cbind(Bottom_ScN[x_Bottom], rep(0, L_Bottom), rep(0, L_Bottom))
+    Bottom_chrom_builder <- cbind(Bottom_ScN[x_Bottom], rep(0, L_Bottom), rep(0, L_Bottom))
   } else {
-    Bottom_chrom_buider <- c()
+    Bottom_chrom_builder <- c()
   }
-  chrom_builder_temp <- rbind(Top_chrom_buider, chrom_builder_temp, Bottom_chrom_buider)
+  chrom_builder_temp <- rbind(Top_chrom_builder, chrom_builder_temp, Bottom_chrom_builder)
   SZC <- nrow(chrom_builder_temp)
   mz12C <- chrom_builder_temp[, 2]
   Chrom_Builder <- chrom_builder_temp[, -2]

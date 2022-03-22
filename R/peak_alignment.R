@@ -1,16 +1,11 @@
 peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol, n_quantile, number_processing_cores) {
   L_PL <- length(file_names_pl)
-  imzRTXcol_main <- do.call(rbind, lapply(1:L_PL, function(i) {
-    peaklist <- loadRdata(paste0(input_path_pl, "/", file_names_pl[i]))
-    cbind(rep(i, nrow(peaklist)), peaklist[, 8], RT_pl[[i]], peaklist[, Xcol = 4], 1:nrow(peaklist))
-  }))
-  imzRTXcol_main <- imzRTXcol_main[order(imzRTXcol_main[, 2], decreasing = TRUE), ]
   ##
-  MZ_Q <- quantile(imzRTXcol_main[, 2], probs = c(1:n_quantile)/n_quantile)
-  MZ_Q_boundaries <- cbind(c(0, MZ_Q[1 :(n_quantile - 1)]), MZ_Q)
-  MZ_Q_boundaries[, 1] <- MZ_Q_boundaries[, 1] - mz_error*1.5
-  MZ_Q_boundaries[, 2] <- MZ_Q_boundaries[, 2] + mz_error*1.5
-  #
+  imzRTXcol_main_call <- function(i) {
+    peaklist <- loadRdata(paste0(input_path_pl, "/", file_names_pl[i]))
+    cbind(rep(i, nrow(peaklist)), peaklist[, 8], RT_pl[[i]], peaklist[, 4], 1:nrow(peaklist))
+  }
+  ##
   FeatureTable_Main_call <- function (q) {
     x_Q <- which(imzRTXcol_main[, 2] >= MZ_Q_boundaries[q, 1] &
                    imzRTXcol_main[, 2] <= MZ_Q_boundaries[q, 2])
@@ -63,17 +58,58 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
   ##
   osType <- Sys.info()[['sysname']]
   if (osType == "Linux") {
+    imzRTXcol_main <- do.call(rbind, mclapply(1:L_PL, function(i) {
+      imzRTXcol_main_call(i)
+    }, mc.cores = number_processing_cores))
+    RT_pl <- c()
+    ##
+    imzRTXcol_main <- imzRTXcol_main[order(imzRTXcol_main[, 2], decreasing = TRUE), ]
+    ##
+    if (n_quantile > 1) {
+      MZ_Q <- quantile(imzRTXcol_main[, 2], probs = c(1:n_quantile)/n_quantile)
+      MZ_Q_boundaries <- cbind(c(min(imzRTXcol_main[, 2]), MZ_Q[1 :(n_quantile - 1)]), MZ_Q)
+      MZ_Q_boundaries[, 1] <- MZ_Q_boundaries[, 1] - mz_error*1.5
+      MZ_Q_boundaries[, 2] <- MZ_Q_boundaries[, 2] + mz_error*1.5
+    } else {
+      MZ_Q_boundaries <- matrix(c(min(imzRTXcol_main[, 2]), max(imzRTXcol_main[, 2])), ncol = 2)
+    }
+    ##
     FeatureTable_Main <- do.call(rbind, mclapply(1:n_quantile, function (q) {
       FeatureTable_Main_call(q)
     }, mc.cores = number_processing_cores))
+    ##
+    imzRTXcol_main <- c()
+    ##
   }
   ##
   if(osType == "Windows") {
     cl <- makeCluster(number_processing_cores)
     registerDoSNOW(cl)
+    ##
+    imzRTXcol_main <- foreach(i = 1:L_PL, .combine="rbind", .verbose = FALSE) %dopar% {
+      imzRTXcol_main_call(i)
+    }
+    RT_pl <- c()
+    ##
+    imzRTXcol_main <- imzRTXcol_main[(imzRTXcol_main[, 2] > 0), ]
+    ##
+    imzRTXcol_main <- imzRTXcol_main[order(imzRTXcol_main[, 2], decreasing = TRUE), ]
+    ##
+    if (n_quantile > 1) {
+      MZ_Q <- quantile(imzRTXcol_main[, 2], probs = c(1:n_quantile)/n_quantile)
+      MZ_Q_boundaries <- cbind(c(min(imzRTXcol_main[, 2]), MZ_Q[1 :(n_quantile - 1)]), MZ_Q)
+      MZ_Q_boundaries[, 1] <- MZ_Q_boundaries[, 1] - mz_error*1.5
+      MZ_Q_boundaries[, 2] <- MZ_Q_boundaries[, 2] + mz_error*1.5
+    } else {
+      MZ_Q_boundaries <- matrix(c(min(imzRTXcol_main[, 2]), max(imzRTXcol_main[, 2])), ncol = 2)
+    }
+    ##
     FeatureTable_Main <- foreach(q = 1:n_quantile, .combine="rbind", .verbose = FALSE) %dopar% {
       FeatureTable_Main_call(q)
     }
+    ##
+    imzRTXcol_main <- c()
+    ##
     stopCluster(cl)
   }
   ## To resolve redundant peaks in the peak matrix table
@@ -118,6 +154,7 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
   x_non0 <- which(FeatureTable_Main[, 1] != 0)
   FeatureTable_Main <- FeatureTable_Main[x_non0, ]
   FeatureTable_Main <- FeatureTable_Main[, -1]
+  rownames(FeatureTable_Main) <- c()
   FeatureTable_Main <- FeatureTable_Main[order(FeatureTable_Main[, 1], decreasing = FALSE), ]
   return(FeatureTable_Main)
 }

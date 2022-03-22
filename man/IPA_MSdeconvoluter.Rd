@@ -1,5 +1,5 @@
-\name{MS_deconvoluter}
-\alias{MS_deconvoluter}
+\name{IPA_MSdeconvoluter}
+\alias{IPA_MSdeconvoluter}
 \title{
 MS deconvoluter
 }
@@ -7,10 +7,13 @@ MS deconvoluter
 This function deconvolute mass spectrometry files into a list of mass spectrals and a vector of retention times.
 }
 \usage{
-MS_deconvoluter(MassSpec_file, MS_level = 1)
+IPA_MSdeconvoluter(HRMS_path, MSfile, MS_level = 1)
 }
 \arguments{
-  \item{MassSpec_file}{
+  \item{HRMS_path}{
+address of the mass spectrometry file
+}
+  \item{MSfile}{
 mass spectromtery file.
 }
   \item{MS_level}{

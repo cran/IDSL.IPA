@@ -4,7 +4,7 @@
 gaussianity measurement
 }
 \description{
-This module measures gaussianity of chromatographic peak using p-values of Kolmogorov-Smirnov test (two-sided) at top 80 percent of peak.
+This module measures gaussianity of chromatographic peak using Pearson correlation coefficients (\eqn{\rho}) at top 80 percent of peak.
 }
 \usage{
 gaussianity_measurement(RT, Int, BL, gauge = 0.8)

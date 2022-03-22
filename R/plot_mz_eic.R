@@ -7,9 +7,10 @@ plot_mz_eic <- function(filelist,filelocation,mztarget,mzdelta,numberOfcores,rts
 
 
   dflist <- foreach(mzmlfile = filelist) %dopar% {
-    load(paste0(filelocation,gsub(".mzML","_spectra.RData",mzmlfile)))
-    load(paste0(filelocation,gsub(".mzML","_peaktable.RData",mzmlfile)))
-    mzdf <- do.call(rbind, lapply(1:length(spectraList),function(l) { cbind(spectraList[[l]],peakTable$retentionTime[l]/60,l) }))
+    p2l <- peak2list(filelocation, mzmlfile)
+    peakTable <- p2l[["peakTable"]]
+    spectraList <- p2l[["spectraList"]]
+    mzdf <- do.call(rbind, lapply(1:length(spectraList),function(l) { cbind(spectraList[[l]],peakTable$retentionTime[l],l) }))
     df <- data.frame(RT=as.numeric(mzdf[,3]),Intensity=as.numeric(mzdf[,2]), mz =as.numeric(mzdf[,1]), scan = as.numeric(mzdf[,4]) )
     df <- df[which(df$mz < mztarget + mzdelta & df$mz > mztarget - mzdelta),]
     df
@@ -68,5 +69,5 @@ plot_mz_eic <- function(filelist,filelocation,mztarget,mzdelta,numberOfcores,rts
       lines(df$RT, df$Intensity, pch = 19, col = colvec[kk], type = "l", lty = 1,lwd=2)
     }
   }
-  print('A simple EIC has been successfully generated.')
+  print('simple EICs have been successfully generated!')
 }

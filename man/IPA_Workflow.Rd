@@ -17,6 +17,9 @@ IPA spreadsheet
 \value{
 This function orgonizes the IPA file processing for a better perofrmance using the template spreadsheet.
 }
+\seealso{
+\url{https://ipa.idsl.me/home}
+}
 \examples{
 \donttest{
 library(IDSL.IPA)

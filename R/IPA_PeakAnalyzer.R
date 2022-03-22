@@ -48,8 +48,7 @@ IPA_PeakAnalyzer <- function (PARAM) {
   ##
   call_carbon_IPA_parallel <- function(i) {
     ## To convert mzML/mzXML datafiles
-    MassSpec_file <- paste0(input_path_hrms, "/", file_name_hrms[i])
-    outputer <- MS_deconvoluter(MassSpec_file)
+    outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
     spectraList <- outputer[[1]]
     RetentionTime <- outputer[[2]]
     ## carbon_isotopes_explorer
@@ -66,61 +65,70 @@ IPA_PeakAnalyzer <- function (PARAM) {
                                       max_rpw, min_snr_baseline, max_R13C_integrated_peak, max_percentage_missing_scans, n_spline1)
     ## Recursive analysis
     if (tolower(mz_recursion) == "yes") {
-      peaklist <- recursive_mass_correction(peaklist, spec_scan, scan_tol, spectraList, RetentionTime, mass_accuracy_xic,
-                                            smoothing_window, peak_resolving_power, min_nIsoPair, min_peak_height, min_ratio_IsoPair,
-                                            max_rpw, min_snr_baseline, max_R13C_integrated_peak, max_percentage_missing_scans, n_spline2)
-    }
-    ## To remove repeated peaks
-    peaklist_subset <- cbind(peaklist[, 8], peaklist[, 3], peaklist[, 6])
-    for (k in 1:nrow(peaklist_subset)) {
-      x_mz_rt <- which(abs(peaklist_subset[, 1] - peaklist_subset[k, 1]) <= mass_accuracy_xic &
-                         abs(peaklist_subset[, 2] - peaklist_subset[k, 2]) <= delta_rt)
-      if (length(x_mz_rt) > 1) {
-        x_max <- which.max(peaklist_subset[x_mz_rt, 3])
-        x_remove <- x_mz_rt[-x_max[1]]
-        peaklist_subset[x_remove, ] <- rep(0, 3)
+      if (!is.null(peaklist)) {
+        peaklist <- recursive_mass_correction(peaklist, spec_scan, scan_tol, spectraList, RetentionTime, mass_accuracy_xic,
+                                              smoothing_window, peak_resolving_power, min_nIsoPair, min_peak_height, min_ratio_IsoPair,
+                                              max_rpw, min_snr_baseline, max_R13C_integrated_peak, max_percentage_missing_scans, n_spline2)
       }
     }
-    x_0  <- which(peaklist_subset[, 3] != 0)
-    peaklist <- peaklist[x_0, ]
-    ##
-    peaklist <- peaklist[order(peaklist[, 8]), ] # Sort candidate m/z values by their masses
-    ##
-    peaklist[, 1] <- round(peaklist[, 1], 0)
-    peaklist[, 2] <- round(peaklist[, 2], 0)
-    peaklist[, 3] <- round(peaklist[, 3], 3)
-    peaklist[, 4] <- round(peaklist[, 4], 0)
-    peaklist[, 5] <- round(peaklist[, 5], 0)
-    peaklist[, 6] <- round(peaklist[, 6], 0)
-    peaklist[, 7] <- round(peaklist[, 7], 0)
-    peaklist[, 8] <- round(peaklist[, 8], 5)
-    peaklist[, 9] <- round(peaklist[, 9], 0)
-    peaklist[, 10] <- round(peaklist[, 10], 5)
-    peaklist[, 11] <- round(peaklist[, 11], 3)
-    peaklist[, 12] <- round(peaklist[, 12], 3)
-    peaklist[, 13] <- round(peaklist[, 13], 3)
-    peaklist[, 14] <- round(peaklist[, 14], 0)
-    peaklist[, 15] <- round(peaklist[, 15], 3)
-    peaklist[, 16] <- round(peaklist[, 16], 3)
-    peaklist[, 17] <- round(peaklist[, 17], 3)
-    peaklist[, 18] <- round(peaklist[, 18], 3)
-    peaklist[, 19] <- round(peaklist[, 19], 3)
-    peaklist[, 20] <- round(peaklist[, 20], 3)
-    peaklist[, 21] <- round(peaklist[, 21], 3)
-    peaklist[, 22] <- round(peaklist[, 22], 3)
-    peaklist[, 23] <- round(peaklist[, 23], 3)
-    peaklist[, 24] <- round(peaklist[, 24], 0)
-    ##
+    if (!is.null(peaklist)) {
+      if (length(peaklist) > 24) {
+        ## To remove repeated peaks
+        peaklist_subset <- cbind(peaklist[, 8], peaklist[, 3], peaklist[, 6])
+        for (k in 1:nrow(peaklist_subset)) {
+          x_mz_rt <- which(abs(peaklist_subset[, 1] - peaklist_subset[k, 1]) <= mass_accuracy_xic &
+                             abs(peaklist_subset[, 2] - peaklist_subset[k, 2]) <= delta_rt)
+          if (length(x_mz_rt) > 1) {
+            x_max <- which.max(peaklist_subset[x_mz_rt, 3])
+            x_remove <- x_mz_rt[-x_max[1]]
+            peaklist_subset[x_remove, ] <- rep(0, 3)
+          }
+        }
+        x_0  <- which(peaklist_subset[, 3] != 0)
+        peaklist <- matrix(peaklist[x_0, ], ncol = 24)
+        ##
+        peaklist <- matrix(peaklist[order(peaklist[, 8]), ], ncol = 24) # Sort candidate m/z values by their masses
+      }
+      ##
+      peaklist[, 1] <- round(peaklist[, 1], 0)
+      peaklist[, 2] <- round(peaklist[, 2], 0)
+      peaklist[, 3] <- round(peaklist[, 3], 3)
+      peaklist[, 4] <- round(peaklist[, 4], 0)
+      peaklist[, 5] <- round(peaklist[, 5], 0)
+      peaklist[, 6] <- round(peaklist[, 6], 0)
+      peaklist[, 7] <- round(peaklist[, 7], 0)
+      peaklist[, 8] <- round(peaklist[, 8], 5)
+      peaklist[, 9] <- round(peaklist[, 9], 0)
+      peaklist[, 10] <- round(peaklist[, 10], 5)
+      peaklist[, 11] <- round(peaklist[, 11], 3)
+      peaklist[, 12] <- round(peaklist[, 12], 3)
+      peaklist[, 13] <- round(peaklist[, 13], 3)
+      peaklist[, 14] <- round(peaklist[, 14], 0)
+      peaklist[, 15] <- round(peaklist[, 15], 3)
+      peaklist[, 16] <- round(peaklist[, 16], 3)
+      peaklist[, 17] <- round(peaklist[, 17], 3)
+      peaklist[, 18] <- round(peaklist[, 18], 3)
+      peaklist[, 19] <- round(peaklist[, 19], 3)
+      peaklist[, 20] <- round(peaklist[, 20], 3)
+      peaklist[, 21] <- round(peaklist[, 21], 3)
+      peaklist[, 22] <- round(peaklist[, 22], 3)
+      peaklist[, 23] <- round(peaklist[, 23], 3)
+      peaklist[, 24] <- round(peaklist[, 24], 0)
+      ##
+    } else {
+      peaklist <- matrix(rep(0, 24), ncol = 24)
+    }
     peaklist <- data.frame(peaklist)
-    names(peaklist) <- c("ScanNumberStart","ScanNumberEnd","RetentionTimeApex","PeakHeight","PeakArea",
-                         "NumberDetectedScans(nIsoPair)","RCS(%)","m/z MonoIsotopic","CumulatedIntensity",
-                         "m/z 13C","Ratio 13C CumulatedIntensity","PeakWidthBaseline","Ratio PeakWidth @ 50%",
-                         "SeperationTray","AsymmetryFactor @ 10%","USPTailingFactor @ 5%",
-                         "Skewness_DerivativeMethod", "Symmetry PseudoMoments","Skewness PseudoMoments",
-                         "Gaussianity", "S/N baseline", "S/N xcms method", "S/N RMS", "Sharpness")
-    peaklist <- as.matrix(peaklist)
+    colnames(peaklist) <- c("ScanNumberStart","ScanNumberEnd","RetentionTimeApex","PeakHeight","PeakArea",
+                            "NumberDetectedScans(nIsoPair)","RCS(%)","m/z MonoIsotopic","CumulatedIntensity",
+                            "m/z 13C","Ratio 13C CumulatedIntensity","PeakWidthBaseline","Ratio PeakWidth @ 50%",
+                            "SeperationTray","AsymmetryFactor @ 10%","USPTailingFactor @ 5%",
+                            "Skewness_DerivativeMethod", "Symmetry PseudoMoments","Skewness PseudoMoments",
+                            "Gaussianity", "S/N baseline", "S/N xcms method", "S/N RMS", "Sharpness")
+    ##
     save(peaklist, file = paste0(output_path_peaklist, "/peaklist_",file_name_hrms[i],".Rdata"))
     write.csv(peaklist, file = paste0(output_path_peaklist, "/peaklist_",file_name_hrms[i],".csv"))
+    ##
     return()
   }
   print("Initiated HRMS peak detection!")

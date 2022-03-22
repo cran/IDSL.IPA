@@ -135,8 +135,7 @@ IPA_PeaklistAnnotation <- function(PARAM) {
               RT_uncorrected_undeteced <- matrix(undeteced_RT, ncol = 1)
             }
             ##
-            MassSpec_file <- paste0(input_path_hrms, "/", file_name_hrms[i])
-            outputer <- MS_deconvoluter(MassSpec_file)
+            outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
             spectraList <- outputer[[1]]
             RetentionTime <- outputer[[2]]
             nRT <- length(RetentionTime)
@@ -235,8 +234,7 @@ IPA_PeaklistAnnotation <- function(PARAM) {
               RT_uncorrected_undeteced <- matrix(undeteced_RT, ncol = 1)
             }
             ##
-            MassSpec_file <- paste0(input_path_hrms, "/", file_name_hrms[i])
-            outputer <- MS_deconvoluter(MassSpec_file)
+            outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
             spectraList <- outputer[[1]]
             RetentionTime <- outputer[[2]]
             nRT <- length(RetentionTime)

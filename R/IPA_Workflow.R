@@ -52,7 +52,13 @@ IPA_Workflow <- function(spreadsheet) {
         exportTable_TorF <- FALSE
       }
       ##
-      null_var <- IPA_TargetedAnalysis(spreadsheet, mzCandidate, rtCandidate, exportEIC = exportEIC_TorF, exportTable = exportTable_TorF)
+      IPA_TargetedTable <- IPA_TargetedAnalysis(spreadsheet, mzCandidate, rtCandidate, exportEIC = exportEIC_TorF, exportTable = exportTable_TorF)
+      ##
+      if (exportTable_TorF) {
+        output_path <- PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM0010'), 2]
+        save(IPA_TargetedTable, file = paste0(output_path, "/IPA_TargetedTable.Rdata"))
+        write.csv(IPA_TargetedTable, file = paste0(output_path, "/IPA_TargetedTable.csv"))
+      }
     }
     ##
     required_time <- Sys.time() - initiation_time
