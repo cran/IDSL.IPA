@@ -46,10 +46,10 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
     osType <- Sys.info()[['sysname']]
     print("Initiated the targeted analysis!")
     if(osType == "Windows") {
-      cl <- makeCluster(number_processing_cores)
-      registerDoSNOW(cl)
+      clust <- makeCluster(number_processing_cores)
+      registerDoParallel(clust)
       cc_table <- foreach(i = 1:length(file_name_hrms), .combine ='rbind', .verbose = FALSE) %dopar% {
-        ## To convert mzXML datafiles
+        ##
         outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
         spectraList <- outputer[[1]]
         RetentionTime <- outputer[[2]]
@@ -144,12 +144,11 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
         }))
         chrome
       }
-      stopCluster(cl)
-    }
-    ##
-    if (osType == "Linux") {
+      stopCluster(clust)
+      ##
+    } else if (osType == "Linux") {
       cc_table <- do.call(rbind, lapply(1:length(file_name_hrms), function(i) {
-        ## To convert mzXML datafiles
+        ##
         outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
         spectraList <- outputer[[1]]
         RetentionTime <- outputer[[2]]

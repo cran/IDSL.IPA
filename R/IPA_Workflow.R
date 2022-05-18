@@ -35,8 +35,12 @@ IPA_Workflow <- function(spreadsheet) {
     if (tolower(PARAM[which(PARAM[, 1] == 'PARAM0005'), 2]) == "yes") {
       PARAM_targeted <- xlsxAnalyzer_EIC(spreadsheet)
       ##
-      mzCandidate <- eval(parse(text = paste0("c(", PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM_MZ'), 2], ")")))
-      rtCandidate <- eval(parse(text = paste0("c(", PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM_RT'), 2], ")")))
+      mzCandidate <- tryCatch(eval(parse(text = paste0("c(", PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM_MZ'), 2], ")"))), error = function(e){NA})
+      rtCandidate <- tryCatch(eval(parse(text = paste0("c(", PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM_RT'), 2], ")"))), error = function(e){NA})
+      #
+      if (is.na(mzCandidate) | is.na(rtCandidate)) {
+        stop("ERROR!!! Incorrect 'PARAM_MZ' or 'PARAM_RT'")
+      }
       ##
       ipa_eic_tar <- tolower(PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM_EIC'), 2])
       if (ipa_eic_tar == "y" | ipa_eic_tar == "yes") {

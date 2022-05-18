@@ -1,21 +1,21 @@
 plot_mz_eic <- function(filelist,filelocation,mztarget,mzdelta,numberOfcores,rtstart=0,rtend=0,plotTitle = "") {
 
 
-  cl <- makeCluster(numberOfcores)
-  registerDoSNOW(cl)
+  clust <- makeCluster(numberOfcores)
+  registerDoParallel(clust)
 
 
 
   dflist <- foreach(mzmlfile = filelist) %dopar% {
     p2l <- peak2list(filelocation, mzmlfile)
-    peakTable <- p2l[["peakTable"]]
+    scanTable <- p2l[["scanTable"]]
     spectraList <- p2l[["spectraList"]]
-    mzdf <- do.call(rbind, lapply(1:length(spectraList),function(l) { cbind(spectraList[[l]],peakTable$retentionTime[l],l) }))
+    mzdf <- do.call(rbind, lapply(1:length(spectraList),function(l) { cbind(spectraList[[l]],scanTable$retentionTime[l],l) }))
     df <- data.frame(RT=as.numeric(mzdf[,3]),Intensity=as.numeric(mzdf[,2]), mz =as.numeric(mzdf[,1]), scan = as.numeric(mzdf[,4]) )
     df <- df[which(df$mz < mztarget + mzdelta & df$mz > mztarget - mzdelta),]
     df
   }
-  stopCluster(cl)
+  stopCluster(clust)
 
 
 

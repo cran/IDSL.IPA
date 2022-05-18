@@ -76,14 +76,14 @@ IPA_PeakAlignment <- function (PARAM) {
     osType <- Sys.info()[['sysname']]
     if(osType == "Windows") {
       cl <- makeCluster(number_processing_cores)
-      registerDoSNOW(cl)
+      registerDoParallel(cl)
       Correted_RTs_peaklist <- foreach(i = 1:length(Sample_ID), .verbose = FALSE) %dopar% {
         peaklist <- loadRdata(paste0(input_path_peaklist, "/", file_name_peaklist_samples[i]))
         sample_rt_corrector(reference_mz_rt_peaks, peaklist, mz_error, rt_correction_method, reference_peak_tol, polynomial_degree)
       }
       stopCluster(cl)
-    }
-    if (osType == "Linux") {
+      ##
+    } else if (osType == "Linux") {
       Correted_RTs_peaklist <- mclapply(1:length(Sample_ID), function(i) {
         peaklist <- loadRdata(paste0(input_path_peaklist, "/", file_name_peaklist_samples[i]))
         sample_rt_corrector(reference_mz_rt_peaks, peaklist, mz_error, rt_correction_method, reference_peak_tol, polynomial_degree)

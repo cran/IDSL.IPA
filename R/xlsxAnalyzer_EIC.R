@@ -10,7 +10,7 @@ xlsxAnalyzer_EIC <- function (spreadsheet) {
     }
   } else if (length(spreadsheet) == 1) {
     if (typeof(spreadsheet) == "character") {
-      if (file.exists(spreadsheet)){
+      if (file.exists(spreadsheet)) {
         spreadsheet_IPA <- readxl::read_xlsx(spreadsheet, sheet = 'IPA_targeted')
         PARAM <- cbind(spreadsheet_IPA[, 2], spreadsheet_IPA[, 4])
         checkpoint_parameter <- TRUE
@@ -47,7 +47,7 @@ xlsxAnalyzer_EIC <- function (spreadsheet) {
       checkpoint_parameter <- FALSE
     } else {
       address_hrms <- PARAM[x0007, 2]
-      address_hrms <- gsub("\\", "/", address_hrms, fixed=TRUE)
+      address_hrms <- gsub("\\", "/", address_hrms, fixed = TRUE)
       PARAM[x0007, 2] <- address_hrms
       if (!dir.exists(address_hrms)) {
         print("ERROR!!! Problem with PARAM0007! Please make sure the full path is provided!")
@@ -82,7 +82,7 @@ xlsxAnalyzer_EIC <- function (spreadsheet) {
             print("ERROR!!! Problem with PARAM0009!")
             checkpoint_parameter <- FALSE
           } else {
-            if (tolower(x0009) == "mzml" | tolower(x0009) == "mzxml") {
+            if (tolower(x0009) == "mzml" | tolower(x0009) == "mzxml" | tolower(x0009) == "cdf") {
               cat("")
             } else {
               print("ERROR!!! Problem with PARAM0009! HRMS data are incompatible!")
@@ -101,7 +101,7 @@ xlsxAnalyzer_EIC <- function (spreadsheet) {
       output_path <- gsub("\\", "/", PARAM[x0010, 2], fixed = TRUE)
       PARAM[x0010, 2] <- output_path
       if (!dir.exists(output_path)) {
-        tryCatch(dir.create(output_path))
+        tryCatch(dir.create(output_path), error = function(e){print("")})
         if (!dir.exists(output_path)) {
           print("ERROR!!! Problem with PARAM0010! R can only create one folder!")
           checkpoint_parameter <- FALSE
@@ -201,9 +201,9 @@ xlsxAnalyzer_EIC <- function (spreadsheet) {
       }
     }
     ##
-    mzCandidate <- eval(parse(text = paste0("c(", PARAM[which(PARAM[, 1] == 'PARAM_MZ'), 2], ")")))
-    rtCandidate <- eval(parse(text = paste0("c(", PARAM[which(PARAM[, 1] == 'PARAM_RT'), 2], ")")))
-    if (length(mzCandidate) !=  length(rtCandidate)) {
+    mzCandidate <- tryCatch(eval(parse(text = paste0("c(", PARAM[which(PARAM[, 1] == 'PARAM_MZ'), 2], ")"))), error = function(e){NA})
+    rtCandidate <- tryCatch(eval(parse(text = paste0("c(", PARAM[which(PARAM[, 1] == 'PARAM_RT'), 2], ")"))), error = function(e){NA})
+    if ((length(mzCandidate) !=  length(rtCandidate)) | is.na(mzCandidate[1]) | is.na(rtCandidate[1])) {
       checkpoint_parameter <- FALSE
       print("Error!!! Problems with PARAM_MZ and PARAM_RT ! mz and RT vectors do not have the same length!")
     }

@@ -46,6 +46,6 @@ spreadsheet[2, 4] <- temp_wd
 spreadsheet[5, 4] <- temp_wd
 mzCandidate <- c(53.01853, 61.00759)
 rtCandidate <- c(0.951, 0.961)
-IPA_TargetedAnalysis(spreadsheet, mzCandidate, rtCandidate)
+IDSL.IPA::IPA_TargetedAnalysis(spreadsheet, mzCandidate, rtCandidate)
 }
 }

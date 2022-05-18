@@ -135,14 +135,14 @@ IPA_PeakAnalyzer <- function (PARAM) {
   ## Processing OS
   osType <- Sys.info()[['sysname']]
   if(osType == "Windows") {
-    cl <- makeCluster(number_processing_cores)
-    registerDoSNOW(cl)
+    clust <- makeCluster(number_processing_cores)
+    registerDoParallel(clust)
     Null_variable <- foreach(k = 1:length(file_name_hrms), .combine = 'rbind', .verbose = FALSE) %dopar% {
       call_carbon_IPA_parallel(k)
     }
-    stopCluster(cl)
-  }
-  if (osType == "Linux") {
+    stopCluster(clust)
+    ##
+  } else if (osType == "Linux") {
     Null_variable <- do.call(rbind, mclapply(1:length(file_name_hrms), function(k) {
       call_carbon_IPA_parallel(k)
     }, mc.cores = number_processing_cores))

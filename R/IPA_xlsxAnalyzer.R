@@ -331,7 +331,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
             print("ERROR!!! Problem with PARAM0009!")
             checkpoint_parameter <- FALSE
           } else {
-            if (tolower(x0009) == "mzml" | tolower(x0009) == "mzxml") {
+            if (tolower(x0009) == "mzml" | tolower(x0009) == "mzxml" | tolower(x0009) == "cdf") {
               cat("")
             } else {
               print("ERROR!!! Problem with PARAM0009! HRMS data are incompatible!")
@@ -350,7 +350,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
       output_path <- gsub("\\", "/", PARAM[x0010, 2], fixed=TRUE)
       PARAM[x0010, 2] <- output_path
       if (!dir.exists(output_path)) {
-        tryCatch(dir.create(output_path))
+        tryCatch(dir.create(output_path), error = function(e){print("")})
         if (!dir.exists(output_path)) {
           print("ERROR!!! Problem with PARAM0010! R can only create one folder!")
           checkpoint_parameter <- FALSE

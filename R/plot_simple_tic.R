@@ -2,14 +2,14 @@ plot_simple_tic <- function(filelist,filelocation,numberOfcores,plotTitle = "Tot
 
 
 
-  cl <- makeCluster(numberOfcores)
-  registerDoSNOW(cl)
+  clust <- makeCluster(numberOfcores)
+  registerDoParallel(clust)
   dflist.tic <- foreach(mzmlfile = filelist) %dopar% {
     p2l <- peak2list(filelocation, mzmlfile)
-    peakTable <- p2l[["peakTable"]]
-    data.frame(RT=as.numeric(peakTable$retentionTime),Intensity=as.numeric(peakTable$totIonCurrent))
+    scanTable <- p2l[["scanTable"]]
+    data.frame(RT=scanTable$retentionTime, Intensity=scanTable$totIonCurrent)
   }
-  stopCluster(cl)
+  stopCluster(clust)
 
 
 

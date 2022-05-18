@@ -80,11 +80,9 @@ peak_alignment <- function(input_path_pl, file_names_pl, RT_pl, mz_error, rt_tol
     ##
     imzRTXcol_main <- c()
     ##
-  }
-  ##
-  if(osType == "Windows") {
+  } else if (osType == "Windows") {
     cl <- makeCluster(number_processing_cores)
-    registerDoSNOW(cl)
+    registerDoParallel(cl)
     ##
     imzRTXcol_main <- foreach(i = 1:L_PL, .combine="rbind", .verbose = FALSE) %dopar% {
       imzRTXcol_main_call(i)

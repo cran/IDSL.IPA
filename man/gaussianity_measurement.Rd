@@ -23,7 +23,7 @@ a vector of baseline of the chromatographic peak.
 represents the gauge height of peak for Gaussianity measurement.
 }
 }
-\value{
+  \value{
 Gaussianity of the chromatographic peak.
 }
 \examples{

@@ -130,11 +130,11 @@ IPA_GapFiller <- function(PARAM) {
     })
     closeAllConnections()
     close(progressBARboundaries)
-  }
-  ##
-  if(osType == "Windows") {
-    cl <- makeCluster(number_processing_cores)
-    registerDoSNOW(cl)
+    ##
+  } else if(osType == "Windows") {
+    ##
+    clust <- makeCluster(number_processing_cores)
+    registerDoParallel(clust)
     chromatography_undetected_list <- foreach(i=1:L_HRMS, .verbose = FALSE) %dopar% {
       chromatography_undetected <- c()
       x_0 <- which(peak_Xcol[, (i + 2)] == 0)
@@ -224,7 +224,7 @@ IPA_GapFiller <- function(PARAM) {
       }
       chromatography_undetected
     }
-    stopCluster(cl)
+    stopCluster(clust)
   }
   ##
   print("Filling gaps of the peak height, peak area, and R13C on the aligned peak tables!")

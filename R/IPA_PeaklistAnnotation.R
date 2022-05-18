@@ -211,10 +211,11 @@ IPA_PeaklistAnnotation <- function(PARAM) {
           chromatography_undetected
         }, mc.cores = number_processing_cores)
         closeAllConnections()
-      }
-      if(osType == "Windows") {
-        cl <- makeCluster(number_processing_cores)
-        registerDoSNOW(cl)
+        ##
+      } else if(osType == "Windows") {
+        ##
+        clust <- makeCluster(number_processing_cores)
+        registerDoParallel(clust)
         chromatography_undetected_list <- foreach(i=1:L_HRMS, .verbose = FALSE) %dopar% {
           ##
           chromatography_undetected <-c()
@@ -309,7 +310,7 @@ IPA_PeaklistAnnotation <- function(PARAM) {
           }
           chromatography_undetected
         }
-        stopCluster(cl)
+        stopCluster(clust)
       }
       ##
       annotated_peak_height_gapfilled <- annotated_peak_height
