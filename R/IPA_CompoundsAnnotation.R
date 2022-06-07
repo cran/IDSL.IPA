@@ -15,7 +15,7 @@ IPA_CompoundsAnnotation <- function(PARAM) {
     input_path_peaklist <- paste0(output_path, "/peaklists")
     file_names_peaklist1 <- dir(path = input_path_peaklist, pattern = ".Rdata")
     file_names_peaklist2 <- dir(path = input_path_peaklist, pattern = "peaklist_")
-    file_names_peaklist <- file_names_peaklist1[file_names_peaklist1%in%file_names_peaklist2]
+    file_names_peaklist <- file_names_peaklist1[file_names_peaklist1 %in% file_names_peaklist2]
     L_PL <- length(file_names_peaklist)
     ##
     input_path_hrms <- PARAM[which(PARAM[, 1] == 'PARAM0007'), 2]
@@ -28,7 +28,7 @@ IPA_CompoundsAnnotation <- function(PARAM) {
     }
     file_names_peaklist_hrms1 <- gsub(".Rdata", "", file_names_peaklist)
     file_names_peaklist_hrms2 <- gsub("peaklist_", "", file_names_peaklist_hrms1)
-    file_names_peaklist_hrms <- file_name_hrms%in%file_names_peaklist_hrms2
+    file_names_peaklist_hrms <- file_name_hrms %in% file_names_peaklist_hrms2
     if (length(which(file_names_peaklist_hrms == TRUE)) != L_PL) {
       stop("Error!!! peaklist files are not available for all selected HRMS files!")
     }
@@ -44,7 +44,7 @@ IPA_CompoundsAnnotation <- function(PARAM) {
                       "Gaussianity", "S/N", "S/N xcms method", "S/N RMS", "Sharpness")
       MAT
     })
-    progressBARboundaries <- txtProgressBar(min = 1, max =L_PL, initial = 1, style = 3)
+    progressBARboundaries <- txtProgressBar(min = 1, max = L_PL, initial = 1, style = 3)
     ##
     if (tolower(x0045) == "yes") {
       corrected_RT_peaklists <- loadRdata(paste0(output_path, "/peak_alignment/corrected_RT_peaklists.Rdata"))
@@ -94,7 +94,7 @@ IPA_CompoundsAnnotation <- function(PARAM) {
     dir.create(Output_CSV)
     for (i in 1:L_nc) {
       A <- annotation_list[[i]]
-      write.csv(A, file = paste0(Output_CSV, "/", i, "_", "annotated_compound__", gsub("/", "_or_", name_compounds[i], fixed=TRUE), ".csv"))
+      write.csv(A, file = paste0(Output_CSV, "/", i, "_", "annotated_compound__", gsub("/", "_or_", name_compounds[i], fixed = TRUE), ".csv"))
     }
     print("Completed compound-centric peak annotation!")
   }

@@ -13,7 +13,7 @@ reference_peaks_detector <- function(input_path_pl, file_names_ref, min_frequenc
   round_mz <- round(mz_rt_Xmed_ref[, 1], digits = 1)
   x_unique <- which(table(round_mz) == 1)
   unique_mz <- as.numeric(names(x_unique))
-  select_mz <- round_mz%in%unique_mz
+  select_mz <- round_mz %in% unique_mz
   reference_mz_rt_peaks <- matrix(mz_rt_Xmed_ref[select_mz, ], ncol = 2)
   return(reference_mz_rt_peaks)
 }

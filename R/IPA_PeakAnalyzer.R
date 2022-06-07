@@ -132,22 +132,36 @@ IPA_PeakAnalyzer <- function (PARAM) {
     return()
   }
   print("Initiated HRMS peak detection!")
-  ## Processing OS
-  osType <- Sys.info()[['sysname']]
-  if(osType == "Windows") {
-    clust <- makeCluster(number_processing_cores)
-    registerDoParallel(clust)
-    Null_variable <- foreach(k = 1:length(file_name_hrms), .combine = 'rbind', .verbose = FALSE) %dopar% {
-      call_carbon_IPA_parallel(k)
-    }
-    stopCluster(clust)
+  ##
+  if (number_processing_cores == 1) {
     ##
-  } else if (osType == "Linux") {
-    Null_variable <- do.call(rbind, mclapply(1:length(file_name_hrms), function(k) {
+    Null_variable <- do.call(rbind, lapply(1:length(file_name_hrms), function(k) {
       call_carbon_IPA_parallel(k)
-    }, mc.cores = number_processing_cores))
-    closeAllConnections()
+    }))
+    ##
+  } else {
+    ## Processing OS
+    osType <- Sys.info()[['sysname']]
+    ##
+    if (osType == "Linux") {
+      ##
+      Null_variable <- do.call(rbind, mclapply(1:length(file_name_hrms), function(k) {
+        call_carbon_IPA_parallel(k)
+      }, mc.cores = number_processing_cores))
+      ##
+      closeAllConnections()
+    } else if (osType == "Windows") {
+      clust <- makeCluster(number_processing_cores)
+      registerDoParallel(clust)
+      ##
+      Null_variable <- foreach(k = 1:length(file_name_hrms), .combine = 'rbind', .verbose = FALSE) %dopar% {
+        call_carbon_IPA_parallel(k)
+      }
+      stopCluster(clust)
+      ##
+    }
   }
+  ##
   print("Completed HRMS peak detection!")
   return()
 }

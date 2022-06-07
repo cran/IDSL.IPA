@@ -6,12 +6,12 @@ peak_sharpness <- function(int) {
   if (L_int >= 3) {
     x_H <- which.max(int)[1]
     if (x_H >= 2) {
-      SH1 <- sapply(2:x_H, function (i) {
+      SH1 <- do.call(c, lapply(2:x_H, function(i) {
         (int[i] - int[i - 1])/int[i - 1]
-      })
-      SH2 <- sapply(x_H:(L_int - 1), function (i) {
+      }))
+      SH2 <- do.call(c, lapply(x_H:(L_int - 1), function(i) {
         (int[i] - int[i + 1])/int[i + 1]
-      })
+      }))
       SH <- sum(SH1) + sum(SH2)
     }
   }

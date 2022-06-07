@@ -1,5 +1,7 @@
 IPA_xlsxAnalyzer <- function(spreadsheet) {
   ##
+  print("Initiated testing the IPA spreadsheet consistency!")
+  ##
   RT_correction_check <- function(checkpoint_parameter, PARAM) {
     ##
     x0029 <- which(PARAM[, 1] == 'PARAM0029')
@@ -62,9 +64,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
         print("ERROR!!! Problem with PARAM0032!")
         checkpoint_parameter <- FALSE
       } else {
-        if (gsub(" ", "", tolower(x0032)) == "polynomial" | gsub(" ", "", tolower(x0032)) == "retentionindex") {
-          cat("")
-        } else {
+        if (!(gsub(" ", "", tolower(x0032)) == "polynomial" | gsub(" ", "", tolower(x0032)) == "retentionindex")) {
           print("ERROR!!! Problem with PARAM0032!")
           checkpoint_parameter <- FALSE
         }
@@ -191,9 +191,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
       checkpoint_parameter <- FALSE
       x0001 <- 0
     } else {
-      if (tolower(x0001) == "yes" | tolower(x0001) == "no") {
-        cat("")
-      } else {
+      if (!(tolower(x0001) == "yes" | tolower(x0001) == "no")) {
         print("ERROR!!! Problem with PARAM0001!")
         checkpoint_parameter <- FALSE
       }
@@ -205,9 +203,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
       checkpoint_parameter <- FALSE
       x0002 <- 0
     } else {
-      if (tolower(x0002) == "yes" | tolower(x0002) == "no") {
-        cat("")
-      } else {
+      if (!(tolower(x0002) == "yes" | tolower(x0002) == "no")) {
         print("ERROR!!! Problem with PARAM0002!")
         checkpoint_parameter <- FALSE
       }
@@ -219,9 +215,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
       checkpoint_parameter <- FALSE
       x0003 <- 0
     } else {
-      if (tolower(x0003) == "yes" | tolower(x0003) == "no") {
-        cat("")
-      } else {
+      if (!(tolower(x0003) == "yes" | tolower(x0003) == "no")) {
         print("ERROR!!! Problem with PARAM0003!")
         checkpoint_parameter <- FALSE
       }
@@ -233,9 +227,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
       checkpoint_parameter <- FALSE
       x0004 <- 0
     } else {
-      if (tolower(x0004) == "yes" | tolower(x0004) == "no") {
-        cat("")
-      } else {
+      if (!(tolower(x0004) == "yes" | tolower(x0004) == "no")) {
         print("ERROR!!! Problem with PARAM0004!")
         checkpoint_parameter <- FALSE
       }
@@ -331,9 +323,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
             print("ERROR!!! Problem with PARAM0009!")
             checkpoint_parameter <- FALSE
           } else {
-            if (tolower(x0009) == "mzml" | tolower(x0009) == "mzxml" | tolower(x0009) == "cdf") {
-              cat("")
-            } else {
+            if (!(tolower(x0009) == "mzml" | tolower(x0009) == "mzxml" | tolower(x0009) == "cdf")) {
               print("ERROR!!! Problem with PARAM0009! HRMS data are incompatible!")
               checkpoint_parameter <- FALSE
             }
@@ -350,9 +340,8 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
       output_path <- gsub("\\", "/", PARAM[x0010, 2], fixed=TRUE)
       PARAM[x0010, 2] <- output_path
       if (!dir.exists(output_path)) {
-        tryCatch(dir.create(output_path), error = function(e){print("")})
+        tryCatch(dir.create(output_path), error = function(e){print("ERROR!!! Problem with PARAM0010! R can only create one folder!")})
         if (!dir.exists(output_path)) {
-          print("ERROR!!! Problem with PARAM0010! R can only create one folder!")
           checkpoint_parameter <- FALSE
         }
       }
@@ -410,9 +399,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
         print("ERROR!!! Problem with PARAM0015! This parameter should be a positive number!")
         checkpoint_parameter <- FALSE
       } else {
-        if (x0015 > 0) {
-          cat("\n")
-        } else {
+        if (x0015 <= 0) {
           print("ERROR!!! Problem with PARAM0015! This parameter should be a positive number!")
           checkpoint_parameter <- FALSE
         }
@@ -461,9 +448,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
         print("ERROR!!! Problem with PARAM0019!")
         checkpoint_parameter <- FALSE
       } else {
-        if (tolower(x0019) == "yes" | tolower(x0019) == "no") {
-          cat("")
-        } else {
+        if (!(tolower(x0019) == "yes" | tolower(x0019) == "no")) {
           print("ERROR!!! Problem with PARAM0019!")
           checkpoint_parameter <- FALSE
         }
@@ -651,9 +636,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
             x_name <- which(col == 'name')
             x_mz <- which(col == 'm/z')
             x_RT <- which(col == 'RT')
-            if (length(x_name) > 0 & length(x_mz) > 0 & length(x_RT) > 0) {
-              cat("")
-            } else {
+            if (!(length(x_name) > 0 & length(x_mz) > 0 & length(x_RT) > 0)) {
               print("ERROR!!! Problem with PARAM0042! Incorrect column headers in the annotation spreadsheet -> The following columns should be detected in the spreadsheet : 'm/z', 'RT', 'name' - case sensitive")
               checkpoint_parameter <- FALSE
             }
@@ -691,9 +674,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
         print("ERROR!!! Problem with PARAM0045!")
         checkpoint_parameter <- FALSE
       } else {
-        if (tolower(x0045) == "yes" | tolower(x0045) == "no") {
-          cat("")
-        } else {
+        if (!(tolower(x0045) == "yes" | tolower(x0045) == "no")) {
           print("ERROR!!! Problem with PARAM0045!")
           checkpoint_parameter <- FALSE
         }
@@ -721,9 +702,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
         print("ERROR!!! Problem with PARAM0046!")
         checkpoint_parameter <- FALSE
       } else {
-        if (tolower(x0046) == "yes" | tolower(x0046) == "no") {
-          cat("")
-        } else {
+        if (!(tolower(x0046) == "yes" | tolower(x0046) == "no")) {
           print("ERROR!!! Problem with PARAM0046!")
           checkpoint_parameter <- FALSE
         }
@@ -734,9 +713,7 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
         print("ERROR!!! Problem with PARAM0047!")
         checkpoint_parameter <- FALSE
       } else {
-        if (tolower(x0047) == "yes" | tolower(x0047) == "no") {
-          cat("")
-        } else {
+        if (!(tolower(x0047) == "yes" | tolower(x0047) == "no")) {
           print("ERROR!!! Problem with PARAM0047!")
           checkpoint_parameter <- FALSE
         }
@@ -764,6 +741,8 @@ IPA_xlsxAnalyzer <- function(spreadsheet) {
   if (checkpoint_parameter == FALSE) {
     print("Please visit   https://ipa.idsl.me    for instructions!")
     PARAM <- c()
+  } else {
+    print("The IPA spreadsheet is consistent with the IPA workflow!")
   }
   return(PARAM)
 }

@@ -1,4 +1,4 @@
-islocalminimum <- function (y) {
+islocalminimum <- function(y) {
   L_y <- length(y)
   Q <- rep(0, L_y)
   if (L_y > 2) {

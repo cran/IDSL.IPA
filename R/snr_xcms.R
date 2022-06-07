@@ -2,7 +2,7 @@ snr_xcms <- function(int) {
   int <- sort(int)
   L_int <- length(int)
   L_int95 <- floor(L_int*0.95)
-  L_int5 <- floor(L_int*0.05)+1
+  L_int5 <- floor(L_int*0.05) + 1
   if (L_int5 == 1) {
     L_int5 <- L_int5 + 1
   }

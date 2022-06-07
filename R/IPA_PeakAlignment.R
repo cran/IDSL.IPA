@@ -72,26 +72,34 @@ IPA_PeakAlignment <- function (PARAM) {
     ##
     Sample_ID <- as.numeric(setdiff(file_names_peaklist[, 2], Ref_ID))
     file_name_peaklist_samples <- file_names_peaklist[Sample_ID, 1]
-    ## Processing OS
-    osType <- Sys.info()[['sysname']]
-    if(osType == "Windows") {
-      cl <- makeCluster(number_processing_cores)
-      registerDoParallel(cl)
-      Correted_RTs_peaklist <- foreach(i = 1:length(Sample_ID), .verbose = FALSE) %dopar% {
+    ############################################################################
+    if (number_processing_cores == 1) {
+      Correted_RTs_peaklist <- lapply(1:length(Sample_ID), function(i) {
         peaklist <- loadRdata(paste0(input_path_peaklist, "/", file_name_peaklist_samples[i]))
         sample_rt_corrector(reference_mz_rt_peaks, peaklist, mz_error, rt_correction_method, reference_peak_tol, polynomial_degree)
+      })
+    } else {
+      ## Processing OS
+      osType <- Sys.info()[['sysname']]
+      if(osType == "Windows") {
+        cl <- makeCluster(number_processing_cores)
+        registerDoParallel(cl)
+        Correted_RTs_peaklist <- foreach(i = 1:length(Sample_ID), .verbose = FALSE) %dopar% {
+          peaklist <- loadRdata(paste0(input_path_peaklist, "/", file_name_peaklist_samples[i]))
+          sample_rt_corrector(reference_mz_rt_peaks, peaklist, mz_error, rt_correction_method, reference_peak_tol, polynomial_degree)
+        }
+        stopCluster(cl)
+        ##
+      } else if (osType == "Linux") {
+        Correted_RTs_peaklist <- mclapply(1:length(Sample_ID), function(i) {
+          peaklist <- loadRdata(paste0(input_path_peaklist, "/", file_name_peaklist_samples[i]))
+          sample_rt_corrector(reference_mz_rt_peaks, peaklist, mz_error, rt_correction_method, reference_peak_tol, polynomial_degree)
+        }, mc.cores = number_processing_cores)
+        closeAllConnections()
       }
-      stopCluster(cl)
-      ##
-    } else if (osType == "Linux") {
-      Correted_RTs_peaklist <- mclapply(1:length(Sample_ID), function(i) {
-        peaklist <- loadRdata(paste0(input_path_peaklist, "/", file_name_peaklist_samples[i]))
-        sample_rt_corrector(reference_mz_rt_peaks, peaklist, mz_error, rt_correction_method, reference_peak_tol, polynomial_degree)
-      }, mc.cores = number_processing_cores)
-      closeAllConnections()
     }
     print("Completed RT correction!")
-    ##
+    ############################################################################
     corrected_RT_peaklists <- lapply(1:max(as.numeric(file_names_peaklist[, 2])), function(i) {
       if (i%in%Ref_ID == TRUE) {
         k <- which(Ref_ID == i)

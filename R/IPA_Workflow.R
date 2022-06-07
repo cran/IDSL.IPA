@@ -35,10 +35,10 @@ IPA_Workflow <- function(spreadsheet) {
     if (tolower(PARAM[which(PARAM[, 1] == 'PARAM0005'), 2]) == "yes") {
       PARAM_targeted <- xlsxAnalyzer_EIC(spreadsheet)
       ##
-      mzCandidate <- tryCatch(eval(parse(text = paste0("c(", PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM_MZ'), 2], ")"))), error = function(e){NA})
-      rtCandidate <- tryCatch(eval(parse(text = paste0("c(", PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM_RT'), 2], ")"))), error = function(e){NA})
+      mzCandidate <- tryCatch(eval(parse(text = paste0("c(", PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM_MZ'), 2], ")"))), error = function(e){NULL})
+      rtCandidate <- tryCatch(eval(parse(text = paste0("c(", PARAM_targeted[which(PARAM_targeted[, 1] == 'PARAM_RT'), 2], ")"))), error = function(e){NULL})
       #
-      if (is.na(mzCandidate) | is.na(rtCandidate)) {
+      if (is.null(mzCandidate) | is.null(rtCandidate)) {
         stop("ERROR!!! Incorrect 'PARAM_MZ' or 'PARAM_RT'")
       }
       ##
@@ -65,9 +65,9 @@ IPA_Workflow <- function(spreadsheet) {
       }
     }
     ##
+    print("Completed IDSL.IPA computations successfully!")
     required_time <- Sys.time() - initiation_time
     print(required_time)
-    print("Completed IDSL.IPA computations successfully!")
   }
   ##
   gc()

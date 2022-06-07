@@ -15,7 +15,7 @@ sample_rt_corrector <- function(reference_mz_rt_peaks, peaklist, mz_error,
   sample_reference_mz_rt_peaks <- sample_reference_mz_rt_peaks[order(sample_reference_mz_rt_peaks[, 2]), ]
   rtdf1 <- abs(sample_reference_mz_rt_peaks[, 2] - sample_reference_mz_rt_peaks[, 3])
   res3 <- boxplot(rtdf1, plot = FALSE)
-  sample_reference_mz_rt_peaks <- sample_reference_mz_rt_peaks[!rtdf1%in%res3$out, ]
+  sample_reference_mz_rt_peaks <- sample_reference_mz_rt_peaks[!rtdf1 %in% res3$out, ]
   ##################### Retention Time Index ###################################
   if (gsub(" ", "", tolower(rt_correction_method)) == "retentionindex") {
     #
@@ -58,20 +58,19 @@ sample_rt_corrector <- function(reference_mz_rt_peaks, peaklist, mz_error,
       #
       if (L_x_sample_preceding > 0 & L_x_sample_following > 0) {
         #
-        rt_intermediate_vector <- sapply(x_sample_preceding, function(j) {
+        rt_intermediate_vector <- do.call(c, lapply(x_sample_preceding, function(j) {
           #
           RT_sample_preceding <- sample_reference_mz_rt_peaks[j, 2]
           RT_ref_preceding <- sample_reference_mz_rt_peaks[j, 3]
           #
-          sapply(x_sample_following, function(k) {
+          do.call(c, lapply(x_sample_following, function(k) {
             #
             RT_sample_following <- sample_reference_mz_rt_peaks[k, 2]
             RT_ref_following <- sample_reference_mz_rt_peaks[k, 3]
             #
             exp(((log(RT_uncorrected) - log(RT_sample_preceding))/(log(RT_sample_following) - log(RT_sample_preceding)))*(log(RT_ref_following) - log(RT_ref_preceding)) + log(RT_ref_preceding))
-          })
-        })
-        rt_intermediate_vector <- as.vector(rt_intermediate_vector)
+          }))
+        }))
         rt_intermediate <- median(rt_intermediate_vector)
         ##
       } else if (L_x_sample_following == 0) {

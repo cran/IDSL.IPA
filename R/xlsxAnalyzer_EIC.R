@@ -23,7 +23,7 @@ xlsxAnalyzer_EIC <- function (spreadsheet) {
   } else {
     print("The IPA spreadsheet was not produced properly!")
   }
-  if (checkpoint_parameter == TRUE) {
+  if (checkpoint_parameter) {
     ############################################################################
     x0006 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0006'), 2])
     if (is.na(x0006)) {
@@ -119,7 +119,7 @@ xlsxAnalyzer_EIC <- function (spreadsheet) {
         checkpoint_parameter <- FALSE
       }
     }
-    #################### Chromatographic peak detection ######################
+    ##################### Chromatographic peak detection #######################
     x0013 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0013'), 2])
     if (is.na(x0013)) {
       print("ERROR!!! Problem with PARAM0013!")
@@ -136,24 +136,11 @@ xlsxAnalyzer_EIC <- function (spreadsheet) {
       print("ERROR!!! Problem with PARAM0015! This parameter should be a positive number!")
       checkpoint_parameter <- FALSE
     } else {
-      if (x0015 > 0) {
-        cat("\n")
-      } else {
+      if (x0015 <= 0) {
         print("ERROR!!! Problem with PARAM0015! This parameter should be a positive number!")
         checkpoint_parameter <- FALSE
       }
     }
-    ##
-    # x0016 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0016'), 2])
-    # if (is.na(x0016)) {
-    #   print("ERROR!!! Problem with PARAM0016! This parameter should be a positive integer!")
-    #   checkpoint_parameter <- FALSE
-    # } else {
-    #   if (x0016 <= 0) {
-    #     print("ERROR!!! Problem with PARAM0016! This parameter should be a positive integer!")
-    #     checkpoint_parameter <- FALSE
-    #   }
-    # }
     ##
     x0017 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0017'), 2])
     if (is.na(x0017)) {
@@ -201,25 +188,21 @@ xlsxAnalyzer_EIC <- function (spreadsheet) {
       }
     }
     ##
-    mzCandidate <- tryCatch(eval(parse(text = paste0("c(", PARAM[which(PARAM[, 1] == 'PARAM_MZ'), 2], ")"))), error = function(e){NA})
-    rtCandidate <- tryCatch(eval(parse(text = paste0("c(", PARAM[which(PARAM[, 1] == 'PARAM_RT'), 2], ")"))), error = function(e){NA})
-    if ((length(mzCandidate) !=  length(rtCandidate)) | is.na(mzCandidate[1]) | is.na(rtCandidate[1])) {
+    mzCandidate <- tryCatch(eval(parse(text = paste0("c(", PARAM[which(PARAM[, 1] == 'PARAM_MZ'), 2], ")"))), error = function(e){NULL})
+    rtCandidate <- tryCatch(eval(parse(text = paste0("c(", PARAM[which(PARAM[, 1] == 'PARAM_RT'), 2], ")"))), error = function(e){NULL})
+    if ((length(mzCandidate) !=  length(rtCandidate)) | is.null(mzCandidate) | is.null(rtCandidate)) {
       checkpoint_parameter <- FALSE
       print("Error!!! Problems with PARAM_MZ and PARAM_RT ! mz and RT vectors do not have the same length!")
     }
     ##
     ipa_eic_tar <- tolower(PARAM[which(PARAM[, 1] == 'PARAM_EIC'), 2])
-    if (ipa_eic_tar == "y" | ipa_eic_tar == "yes" | ipa_eic_tar == "n" | ipa_eic_tar == "no") {
-      cat("\n")
-    } else {
+    if (!(ipa_eic_tar == "y" | ipa_eic_tar == "yes" | ipa_eic_tar == "n" | ipa_eic_tar == "no")) {
       checkpoint_parameter <- FALSE
       print("Error!!! Problems with PARAM_EIC !")
     }
     ##
     ipa_tab_tar <- tolower(PARAM[which(PARAM[, 1] == 'PARAM_CCT'), 2])
-    if (ipa_tab_tar == "y" | ipa_tab_tar == "yes" | ipa_tab_tar == "n" | ipa_tab_tar == "no") {
-      cat("\n")
-    } else {
+    if (!(ipa_tab_tar == "y" | ipa_tab_tar == "yes" | ipa_tab_tar == "n" | ipa_tab_tar == "no")) {
       checkpoint_parameter <- FALSE
       print("Error!!! Problems with PARAM_EIC !")
     }

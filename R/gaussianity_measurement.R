@@ -1,6 +1,6 @@
-gaussianity_measurement <- function (RT, Int, BL, gauge = 0.8) {
+gaussianity_measurement <- function(RT, Int, BL, gauge = 0.8) {
   GM <- 0
-  Int <- Int-BL
+  Int <- Int - BL
   W0.5 <- peak_width(RT, Int, 0.50)
   if (W0.5 > 0) {
     Int_max <- max(Int)

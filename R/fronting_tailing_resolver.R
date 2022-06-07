@@ -2,7 +2,7 @@ fronting_tailing_resolver <- function(segment, int, max_space, peak_resolving_po
   R_segment <- length(segment)/2
   if (R_segment > 1) {
     SCAN <- 1:length(int)
-    R <- do.call(rbind, lapply(1:R_segment, function (i) {
+    R <- do.call(rbind, lapply(1:R_segment, function(i) {
       x_max <- which.max(int[segment[i, 1]:segment[i, 2]])
       x_max <- segment[i, 1] + x_max[1] - 1
       c(segment[i, 1], x_max, segment[i, 2])

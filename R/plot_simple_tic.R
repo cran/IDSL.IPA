@@ -5,7 +5,7 @@ plot_simple_tic <- function(filelist,filelocation,numberOfcores,plotTitle = "Tot
   clust <- makeCluster(numberOfcores)
   registerDoParallel(clust)
   dflist.tic <- foreach(mzmlfile = filelist) %dopar% {
-    p2l <- peak2list(filelocation, mzmlfile)
+    p2l <- IDSL.MXP::peak2list(filelocation, mzmlfile)
     scanTable <- p2l[["scanTable"]]
     data.frame(RT=scanTable$retentionTime, Intensity=scanTable$totIonCurrent)
   }

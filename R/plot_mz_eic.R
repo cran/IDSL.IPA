@@ -7,7 +7,7 @@ plot_mz_eic <- function(filelist,filelocation,mztarget,mzdelta,numberOfcores,rts
 
 
   dflist <- foreach(mzmlfile = filelist) %dopar% {
-    p2l <- peak2list(filelocation, mzmlfile)
+    p2l <- IDSL.MXP::peak2list(filelocation, mzmlfile)
     scanTable <- p2l[["scanTable"]]
     spectraList <- p2l[["spectraList"]]
     mzdf <- do.call(rbind, lapply(1:length(spectraList),function(l) { cbind(spectraList[[l]],scanTable$retentionTime[l],l) }))
