@@ -17,8 +17,8 @@ RetentionTime, n_spline)
 \arguments{
   \item{spec_scan_xic}{
 a matrix consists of 5 columns. The column contents are the m/z of 12C
-isotoplogues, intensity of 12C isotoplogues, scan number (t), m/z of 13C
-isotoplogues, and intensity of 13C isotoplogues, respectively.
+isotopologues, intensity of 12C isotopologues, scan number (t), m/z of 13C
+isotopologues, and intensity of 13C isotopologues, respectively.
 }
   \item{smoothing_window}{
 number of scans for peak smoothing

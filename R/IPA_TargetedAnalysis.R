@@ -31,9 +31,9 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
       legend_EIC <- grid::rasterGrob(img, interpolate = TRUE)
     }
     ##
-    max_ratio_13c <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0012'), 2])     # Maximum ratio of the monoisotopic isotopologue relative to 13C isotopologue in individual scans
+    massDifferenceIsotopes <- tryCatch(as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0012'), 2]), error = function(e) {1.003354835336}, warning = function(w) {1.003354835336})     # Mass difference for isotopic pairs
     mass_accuracy_xic <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0013'), 2]) # Mass accuracy to cluster m/z in consecutive scans
-    mass_accuracy_13c <- 1.5*mass_accuracy_xic      # Mass accuracy to find 13C isotopologues
+    mass_accuracy_isotope_pair <- 1.5*mass_accuracy_xic      # Mass accuracy to find 13C isotopologues
     smoothing_window <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0015'), 2])
     peak_resolving_power <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0017'), 2])
     scan_tol <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0020'), 2])		            # Number of scans to include in the search before and after of boundaries of detected peaks
@@ -67,22 +67,24 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
           }
           ##
           chromatogram_segment <- do.call(rbind, lapply(t1:t2, function(t) {
-            Spec_ScN_j <- c()
+            Spec_ScN_j <- NULL
             Spec <- spectraList[[t]]
             if (length(Spec) > 0) {
               x_mz1 <- which(abs(Spec[, 1] - mzCandidate[j]) <= mass_accuracy_xic)
-              if (length(x_mz1) > 0) {
-                x_mz2 <- which(abs(Spec[, 1] - (1.00335484 + mzCandidate[j])) <= mass_accuracy_13c)
-                if (length(x_mz2) > 0) {
-                  if (length(x_mz1) > 1) {
+              L_x_mz1 <- length(x_mz1)
+              if (L_x_mz1 > 0) {
+                x_mz2 <- which(abs(Spec[, 1] - (massDifferenceIsotopes + mzCandidate[j])) <= mass_accuracy_isotope_pair)
+                L_x_mz2 <- length(x_mz2)
+                if (L_x_mz2 > 0) {
+                  if (L_x_mz1 > 1) {
                     x_min <- which.min(abs(Spec[x_mz1, 1] - mzCandidate[j]))
-                    x_mz1 <- x_mz1[x_min]
+                    x_mz1 <- x_mz1[x_min[1]]
                   }
-                  if (length(x_mz2) > 1) {
-                    x_min <- which.min(abs(Spec[x_mz2, 1] - (1.00335484 + mzCandidate[j])))
-                    x_mz2 <- x_mz2[x_min]
+                  if (L_x_mz2 > 1) {
+                    x_min <- which.min(abs(Spec[x_mz2, 1] - (massDifferenceIsotopes + mzCandidate[j])))
+                    x_mz2 <- x_mz2[x_min[1]]
                   }
-                  if (Spec[x_mz2, 2]/Spec[x_mz1, 2] <= max_ratio_13c/100) {
+                  if (Spec[x_mz1, 2]>= Spec[x_mz2, 2]) {
                     Spec_ScN_j <- c(Spec[x_mz1, 1], Spec[x_mz1, 2], t, Spec[x_mz2, 1], Spec[x_mz2, 2])
                   }
                 }
@@ -165,23 +167,25 @@ IPA_TargetedAnalysis <- function(spreadsheet, mzCandidate, rtCandidate, exportEI
             t2 <- nRT
           }
           ##
-          chromatogram_segment <- do.call(rbind, mclapply(t1:t2, function(t) {
-            Spec_ScN_j <- c()
+          chromatogram_segment <- do.call(rbind, lapply(t1:t2, function(t) {
+            Spec_ScN_j <- NULL
             Spec <- spectraList[[t]]
             if (length(Spec) > 0) {
               x_mz1 <- which(abs(Spec[, 1] - mzCandidate[j]) <= mass_accuracy_xic)
-              if (length(x_mz1) > 0) {
-                x_mz2 <- which(abs(Spec[, 1] - (1.00335484 + mzCandidate[j])) <= mass_accuracy_13c)
-                if (length(x_mz2) > 0) {
-                  if (length(x_mz1) > 1) {
+              L_x_mz1 <- length(x_mz1)
+              if (L_x_mz1 > 0) {
+                x_mz2 <- which(abs(Spec[, 1] - (massDifferenceIsotopes + mzCandidate[j])) <= mass_accuracy_isotope_pair)
+                L_x_mz2 <- length(x_mz2)
+                if (L_x_mz2 > 0) {
+                  if (L_x_mz1 > 1) {
                     x_min <- which.min(abs(Spec[x_mz1, 1] - mzCandidate[j]))
-                    x_mz1 <- x_mz1[x_min]
+                    x_mz1 <- x_mz1[x_min[1]]
                   }
-                  if (length(x_mz2) > 1) {
-                    x_min <- which.min(abs(Spec[x_mz2, 1] - (1.00335484 + mzCandidate[j])))
-                    x_mz2 <- x_mz2[x_min]
+                  if (L_x_mz2 > 1) {
+                    x_min <- which.min(abs(Spec[x_mz2, 1] - (massDifferenceIsotopes + mzCandidate[j])))
+                    x_mz2 <- x_mz2[x_min[1]]
                   }
-                  if (Spec[x_mz2, 2]/Spec[x_mz1, 2] <= max_ratio_13c/100) {
+                  if (Spec[x_mz1, 2]>= Spec[x_mz2, 2]) {
                     Spec_ScN_j <- c(Spec[x_mz1, 1], Spec[x_mz1, 2], t, Spec[x_mz2, 1], Spec[x_mz2, 2])
                   }
                 }

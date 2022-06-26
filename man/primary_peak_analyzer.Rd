@@ -17,8 +17,8 @@ n_spline)
 \arguments{
   \item{spec_scan}{
 a matrix consists of 5 columns. The column contents are the m/z of 12C
-isotoplogues, intensity of 12C isotoplogues, scan number (t), m/z of 13C
-isotoplogues, and intensity of 13C isotoplogues.
+isotopologues, intensity of 12C isotopologues, scan number (t), m/z of 13C
+isotopologues, and intensity of 13C isotopologues.
 }
   \item{index_xic}{
 a list of indices of candidate 12C m/z values from spec_scan matrix.

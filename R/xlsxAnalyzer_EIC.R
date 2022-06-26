@@ -101,23 +101,20 @@ xlsxAnalyzer_EIC <- function (spreadsheet) {
       output_path <- gsub("\\", "/", PARAM[x0010, 2], fixed = TRUE)
       PARAM[x0010, 2] <- output_path
       if (!dir.exists(output_path)) {
-        tryCatch(dir.create(output_path), error = function(e){print("")})
+        tryCatch(dir.create(output_path), warning = function(w){message("WARNING!!! Problem with PARAM0010! R can only create one folder!")})
         if (!dir.exists(output_path)) {
-          print("ERROR!!! Problem with PARAM0010! R can only create one folder!")
           checkpoint_parameter <- FALSE
         }
       }
     }
     ##
-    x0012 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0012'), 2])
-    if (is.na(x0012)) {
-      print("ERROR!!! Problem with PARAM0012! This parameter should be a positive number!")
+    x0012 <- which(PARAM[, 1] == 'PARAM0012')
+    if (length(x0012) == 0) {
+      print("ERROR!!! Problem with PARAM0012!")
       checkpoint_parameter <- FALSE
     } else {
-      if (x0012 <= 0) {
-        print("ERROR!!! Problem with PARAM0012! This parameter should be a positive number!")
-        checkpoint_parameter <- FALSE
-      }
+      massDifferenceIsotopes <- tryCatch(as.numeric(PARAM[x0012, 2]), error = function(e) {1.003354835336}, warning = function(w) {1.003354835336})     # Mass difference for isotopic pairs
+      PARAM[x0012, 2] <- massDifferenceIsotopes
     }
     ##################### Chromatographic peak detection #######################
     x0013 <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0013'), 2])

@@ -15,8 +15,8 @@ mz_target, rt_target, file_name, legend_EIC)
 \arguments{
   \item{spec_scan_xic}{
 a matrix consists of 5 columns. The column contents are the m/z
-of 12C isotoplogues, intensity of 12C isotoplogues, scan number (t),
-m/z of 13C isotoplogues, and intensity of 13C isotoplogues.
+of 12C isotopologues, intensity of 12C isotopologues, scan number (t),
+m/z of 13C isotopologues, and intensity of 13C isotopologues.
 }
   \item{peak_property_xic}{
 a data frame representing chromatographic peak properties.

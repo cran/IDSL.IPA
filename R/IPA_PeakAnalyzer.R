@@ -17,9 +17,9 @@ IPA_PeakAnalyzer <- function (PARAM) {
   opendir(output_path_peaklist)
   ## To select monoisotopic peaks that have 13C isotopologues in the same scan
   int_threshold <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0011'), 2])     # Intensity threshold in each scan
-  max_R13C <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0012'), 2])     # Maximum ratio of the monoisotopic isotopologue relative to 13C isotopologue in individual scans
+  massDifferenceIsotopes <- tryCatch(as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0012'), 2]), error = function(e) {1.003354835336}, warning = function(w) {1.003354835336})     # Mass difference for isotopic pairs
   mass_accuracy_xic <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0013'), 2]) # Mass accuracy to cluster m/z in consecutive scans
-  mass_accuracy_13c <- 1.5*mass_accuracy_xic      # Mass accuracy to find 13C isotopologues
+  mass_accuracy_isotope_pair <- 1.5*mass_accuracy_xic      # Mass accuracy to find 13C isotopologues
   delta_rt <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0014'), 2])           	    # The retention time deviations to detect redundant peaks
   smoothing_window <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0015'), 2])
   peak_resolving_power <- as.numeric(PARAM[which(PARAM[, 1] == 'PARAM0017'), 2])
@@ -51,8 +51,8 @@ IPA_PeakAnalyzer <- function (PARAM) {
     outputer <- IPA_MSdeconvoluter(input_path_hrms, file_name_hrms[i])
     spectraList <- outputer[[1]]
     RetentionTime <- outputer[[2]]
-    ## carbon_isotopes_explorer
-    spec_scan <- carbon_isotopes_explorer(spectraList, int_threshold, mass_accuracy_13c, max_R13C)
+    ## IPA_isotope_pairing
+    spec_scan <- IPA_isotope_pairing(spectraList, int_threshold, mass_accuracy_isotope_pair, massDifferenceIsotopes)
     ## m/z clustering
     index_xic <- mz_clustering_xic(spec_scan, mass_accuracy_xic, min_peak_height, min_nIsoPair)
     ## spectraList size reduction
@@ -135,9 +135,15 @@ IPA_PeakAnalyzer <- function (PARAM) {
   ##
   if (number_processing_cores == 1) {
     ##
+    progressBARboundaries <- txtProgressBar(min = 0, max = length(file_name_hrms), initial = 1, style = 3)
+    ##
     Null_variable <- do.call(rbind, lapply(1:length(file_name_hrms), function(k) {
       call_carbon_IPA_parallel(k)
+      ##
+      setTxtProgressBar(progressBARboundaries, k)
     }))
+    ##
+    close(progressBARboundaries)
     ##
   } else {
     ## Processing OS
