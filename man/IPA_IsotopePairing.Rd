@@ -1,5 +1,5 @@
-\name{IPA_isotope_pairing}
-\alias{IPA_isotope_pairing}
+\name{IPA_IsotopePairing}
+\alias{IPA_IsotopePairing}
 \title{
 IPA Isotope Pairing
 }
@@ -7,7 +7,7 @@ IPA Isotope Pairing
 This function pairs isotopologue in high-resolution mass spectral datasets
 }
 \usage{
-IPA_isotope_pairing(spectraList, int_threshold, mass_accuracy_isotope_pair,
+IPA_IsotopePairing(spectraList, int_threshold, mass_accuracy_isotope_pair,
 massDifferenceIsotopes)
 }
 \arguments{

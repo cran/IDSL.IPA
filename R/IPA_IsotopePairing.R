@@ -1,4 +1,4 @@
-IPA_isotope_pairing <- function(spectraList, int_threshold, mass_accuracy_isotope_pair, massDifferenceIsotopes) {
+IPA_IsotopePairing <- function(spectraList, int_threshold, mass_accuracy_isotope_pair, massDifferenceIsotopes) {
   NumScans <- length(spectraList)
   spec_scan <- do.call(rbind, lapply(1:NumScans, function(t) {
     Spec <- spectraList[[t]]
