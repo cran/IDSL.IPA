@@ -1,4 +1,4 @@
-cfa2579286a92a2a7e80b71ad47bf81b *DESCRIPTION
+6acc910706cd67b2db457a2a33911155 *DESCRIPTION
 24aeb544d4b8effbf38fdebb7915f62f *LICENSE
 19a4bee6f322f5f05eedbe37c7cb21c3 *NAMESPACE
 b01c6969383a086a3f91f56f9704209b *R/EIC_plotter.R
@@ -6,7 +6,7 @@ b01c6969383a086a3f91f56f9704209b *R/EIC_plotter.R
 096e1213df9f9d7d812f7cc2beb449e1 *R/IPA_GapFiller.R
 22ab23d42d59e979eb75d39c9998b230 *R/IPA_IsotopePairing.R
 dfe086d29b7cd7b6716159d92b61884f *R/IPA_MSdeconvoluter.R
-894e5ac595beec7f329fe6e456406eff *R/IPA_PeakAlignment.R
+e832b25de3209e85ab7654c036b576ef *R/IPA_PeakAlignment.R
 f93114281bd2a59dedfd854195a4bbbb *R/IPA_PeakAnalyzer.R
 d0c506ceb028c5079851c3acbbdc5265 *R/IPA_PeaklistAnnotation.R
 2f5720bea11b65e21167034e1b2741fa *R/IPA_TargetedAnalysis.R
@@ -15,7 +15,7 @@ d0c506ceb028c5079851c3acbbdc5265 *R/IPA_PeaklistAnnotation.R
 47fb4d4a5d37749bcefbfedea78ab428 *R/XIC.R
 ed18f390e39e6ef5a50349f38dd41142 *R/asymmetry_factor.R
 72517a24cf6bcf76242a07439ebbaf1f *R/baseline_developer.R
-e17cc45726129c009ce6f60cfb130f8c *R/chromatography_analysis.R
+8ccd113feb6871bd13225c478db0cd11 *R/chromatography_analysis.R
 d94327df81d00e75bc37b832fa7027b5 *R/der_5points_stencil.R
 51a2a38fa665fdeed2393e53845a0df4 *R/derivative_skewness.R
 716c804a49d26cfab6ea29211e51d4ca *R/fronting_tailing_resolver.R
@@ -25,10 +25,10 @@ a84c6085941ad9951115d8992f51a105 *R/global.R
 0f67acb66ed6cd4b4f1b2ed89a916a88 *R/islocaloptimum.R
 10273be416f305ef81792bb2a7ed19bc *R/loadRdata.R
 c671717310650c5adbf15777572c1673 *R/mzRTindexer.R
-a32d1a84a3b0fc2896d9d60283898248 *R/mz_clustering_xic.R
+4faa39958a60cd5510b2f0c83cce3837 *R/mz_clustering_xic.R
 071ce3fe4ac8c74aea5f626864895218 *R/opendir.R
 eb8a73519da97b1bfcefcbb850872e8c *R/peak_Xcol2.R
-9c72a2f245984f954f321e83e50ac964 *R/peak_alignment.R
+ac2cc5f3141a8a9b8cd6d5ab90bbb88b *R/peak_alignment.R
 88398b8faafe1a5224948f3bfc6b8543 *R/peak_area.R
 1db12adfb390896665c610d92182351e *R/peak_detection.R
 038cc9705e2c0baa1c0f60c9293b4b3e *R/peak_sharpness.R
@@ -46,7 +46,7 @@ c6287b2e34108c754e69612db93c5b27 *R/snr_xcms.R
 d1af09a2e9049838ae02723919c6840a *R/spectraList_filtering.R
 0d6280aa7db6407b80f948211df9c51f *R/usp_tailing_factor.R
 e07941d6673be338eecd7d09392d37d2 *R/xlsxAnalyzer_EIC.R
-a8cd7066d1b0e34eda2d72bb75ccc319 *build/partial.rdb
+c25d73654a77779168cc98e817b81b44 *build/partial.rdb
 e05ce899758c70bd76570f43e8ccf25d *data/chromatogram_builder.rda
 7b744af920d76cc3d602e29e7a32c7c1 *data/peak_spline.rda
 a7c796826cdf2feeef3a19759cabf3f6 *data/segment.rda
@@ -80,8 +80,8 @@ a0ccbf2afc29bae4313f3cea4c17f4ba *man/loadRdata.Rd
 2fe2025e82cd05935cc20c21762bef1d *man/mzRTindexer.Rd
 4dc7d84f6f4790ea9b2451d3a15fbe85 *man/mz_clustering_xic.Rd
 252a400be1455077ab052aafcbba3e25 *man/opendir.Rd
-daf90f9ee90cf4f9e23c50b4360d8f04 *man/peak_Xcol2.Rd
-140e91b6610067d7b560fe370f0a7878 *man/peak_alignment.Rd
+db1f826193ec25ad7e646ad5d25d4b3f *man/peak_Xcol2.Rd
+584996fcb1ca764a6e848295d65b9b0e *man/peak_alignment.Rd
 85345745e3bf90975fad9299466b182a *man/peak_area.Rd
 b7a35364ca63da0ab4ea022113b45414 *man/peak_detection.Rd
 53f4c97612b964ef362e0ba72c42989b *man/peak_sharpness.Rd
