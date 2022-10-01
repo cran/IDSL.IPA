@@ -1,4 +1,4 @@
-IPA_IsotopePairing <- function(spectraList, int_threshold, mass_accuracy_isotope_pair, massDifferenceIsotopes = 1.003354835336) {
+IPA_IonPairing <- function(spectraList, int_threshold, mass_accuracy_isotope_pair, massDifferenceIsotopes = 1.003354835336) {
   ##
   if (int_threshold <= 0) {
     int_threshold <- 1e-16 # This condition must be here to avoid interference

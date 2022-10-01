@@ -1,13 +1,13 @@
-\name{IPA_IsotopePairing}
-\alias{IPA_IsotopePairing}
+\name{IPA_IonPairing}
+\alias{IPA_IonPairing}
 \title{
-IPA Isotope Pairing
+IPA Ion Pairing
 }
 \description{
-This function pairs isotopologue in high-resolution mass spectral datasets
+This function pairs two ions in high-resolution mass spectral datasets
 }
 \usage{
-IPA_IsotopePairing(spectraList, int_threshold, mass_accuracy_isotope_pair,
+IPA_IonPairing(spectraList, int_threshold, mass_accuracy_isotope_pair,
 massDifferenceIsotopes = 1.003354835336)
 }
 \arguments{
@@ -18,10 +18,10 @@ list of mass spectra in each chromatogram scan
 intensity threshold at each chromatogram scan
 }
   \item{mass_accuracy_isotope_pair}{
-mass error to detect pair isotopologues
+mass error to detect pair ions
 }
   \item{massDifferenceIsotopes}{
-mass difference to pair isotopologues. (Default =  \eqn{\Delta C} = \out{<sup>13</sup>C} - \out{<sup>12</sup>C} = 1.003354835336), \eqn{\Delta S} = \out{<sup>34</sup>S} - \out{<sup>32</sup>S} = 1.9957958356, or any numerical value.
+mass difference to pair ions. (Default =  \eqn{\Delta C} = \out{<sup>13</sup>C} - \out{<sup>12</sup>C} = 1.003354835336), \eqn{\Delta S} = \out{<sup>34</sup>S} - \out{<sup>32</sup>S} = 1.9957958356, or any numerical value.
 }
 }
 \value{
