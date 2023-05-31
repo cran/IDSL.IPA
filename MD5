@@ -1,4 +1,4 @@
-699343af1d3878bb49ed1e45531f14c9 *DESCRIPTION
+b0b373fda69417b9e78996ed8372bdaa *DESCRIPTION
 13d9c29883785ea66fcf38f5c942bfb2 *LICENSE
 f01acf98a45309d6b5def045e1a15ff2 *NAMESPACE
 3f93ef949b6103b66a32af2fe966edee *R/IPA_CompoundsAnnotation.R
@@ -54,10 +54,10 @@ feeea077fba79c87c4548826d6a01e33 *R/plot_simple_tic.R
 6d316677a3ba1847a06b262e9c2a77b1 *R/recursiveMZpeaklistCorrector.R
 6566a9bc31f77d50a57aba05067797f5 *R/referenceRetentionTimeDetector.R
 2cf2808c5b149b0b48d27a4f334416bb *R/targetedIonPairing.R
-ea124a494ad7922985532ad3b308e4d5 *build/partial.rdb
+439bf689fa27cf9affd0335332142165 *build/partial.rdb
 2de5ddfe873f2321bfd5244950755f4f *data/chromatogramMatrix.rda
-a10251ae5e07f1ea63d9984c90861a90 *data/peak_spline.rda
-e08391979eb83e1eebca47ccd9d0b445 *data/segment.rda
+ed329e3434d973372ecbd3b2836a73fc *data/peak_spline.rda
+2991481eec2311f76c9eb11b08935f6e *data/segment.rda
 6e56e23f36ca0c9de84e5d9707c818ac *inst/CITATION
 41e893fae81be06058c73e7b85db46c4 *inst/extdata/IPA_parameters.xlsx
 b6f1379d87798819c3f0954b8894af3a *inst/extdata/Reference_masses_peak_annotation.xlsx
@@ -75,9 +75,9 @@ aff236b169fac09b5917065444f1da0b *man/IPA_IonPairing.Rd
 4f146954661e45fc5a94faf679568de5 *man/IPA_peak_alignment_folder_xlsxAnalyzer.Rd
 75249464dcd17e5dbd238ca4940384dc *man/IPA_spectraListAggregator.Rd
 ba12c5432bf1186a7cfbfd7356cc8c4e *man/IPA_targeted.Rd
-f5006500301367ce449b570b6a05b7c9 *man/IPA_targeted_xlsxAnalyzer.Rd
-072e9a35b28d5b2987d53fbb9bc772b6 *man/IPA_workflow.Rd
-05af9013a644b6c618cf8006c0d9e519 *man/IPA_xlsxAnalyzer.Rd
+a136c9b21f9a347222ba5486a2f4b38d *man/IPA_targeted_xlsxAnalyzer.Rd
+4263da59271ba1b6737c75b20e3c00eb *man/IPA_workflow.Rd
+a17cd7cca7f3619495bbc1c136bcc19e *man/IPA_xlsxAnalyzer.Rd
 049860d56d5ff4f0c8efba28c9536de6 *man/SNRbaseline.Rd
 93d690075cae7718ac7ea0b4b7cfc1c0 *man/SNRrms.Rd
 59ff8446e9aaafff1a2aa454fa4ba965 *man/SNRxcms.Rd
